@@ -113,7 +113,7 @@ const LoggableEventsProvider = ({ offlineMode, children }: Props) => {
         fetchedLoggableEvents,
         fetchedEventLabels,
         submitCreateLoggableEvent,
-        submitCreateTimestampForEvent,
+        submitCreateEventRecord,
         submitUpdateLoggableEventDetails,
         submitDeleteLoggableEvent,
         submitCreateEventLabel,
@@ -195,14 +195,16 @@ const LoggableEventsProvider = ({ offlineMode, children }: Props) => {
                     return eventData;
                 }
 
+                const prevTimestamps = eventData.timestamps.slice(0, 4);
+
                 return {
                     ...eventData,
-                    timestamps: [...eventData.timestamps, dateToAdd].sort(sortDateObjectsByNewestFirst)
+                    timestamps: [...prevTimestamps, dateToAdd].sort(sortDateObjectsByNewestFirst)
                 };
             })
         );
 
-        await submitCreateTimestampForEvent(eventId, newEventDateTimeISOString);
+        await submitCreateEventRecord(eventId, newEventDateTimeISOString);
     };
 
     const updateLoggableEventDetails = async (updatedLoggableEvent: LoggableEvent) => {

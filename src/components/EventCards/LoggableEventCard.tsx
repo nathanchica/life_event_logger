@@ -48,11 +48,11 @@ const DaysSinceLastEventDisplay = ({
     const daysSinceLastEvent = getNumberOfDaysBetweenDates(lastEventRecordDate, new Date());
     const isViolatingThreshold = warningThresholdInDays > 0 && daysSinceLastEvent >= warningThresholdInDays;
 
-    let content = <Typography variant="caption">Last event: {daysSinceLastEvent} days ago</Typography>;
+    let textToDisplay = `Last event: ${daysSinceLastEvent} days ago`;
     if (daysSinceLastEvent === 0) {
-        content = <Typography variant="caption">Last event: Today</Typography>;
+        textToDisplay = `Last event: Today`;
     } else if (daysSinceLastEvent === 1) {
-        content = <Typography variant="caption">Last event: Yesterday</Typography>;
+        textToDisplay = `Last event: Yesterday`;
     }
 
     return (
@@ -63,7 +63,7 @@ const DaysSinceLastEventDisplay = ({
             `}
         >
             <Stack direction="row" spacing={1}>
-                {content}
+                <Typography variant="caption">{textToDisplay}</Typography>
                 {isViolatingThreshold && <WarningAmberIcon color="error" fontSize="small" />}
             </Stack>
         </Box>
@@ -263,10 +263,12 @@ const LoggableEventCard = ({ eventId }: Props) => {
                             </Stack>
                         </ListItem>
                     </Collapse>
+
+                    <Typography variant="subtitle2">Records</Typography>
                     {timestamps.map((record: Date) => {
                         const isFutureDate = getNumberOfDaysBetweenDates(record, currDate) < 0;
                         return (
-                            <ListItem disablePadding key={record.toISOString()}>
+                            <ListItem disablePadding key={`${id}-${record.toISOString()}`}>
                                 <ListItemText
                                     css={
                                         isFutureDate
@@ -276,7 +278,7 @@ const LoggableEventCard = ({ eventId }: Props) => {
                                             : null
                                     }
                                 >
-                                    {record.toLocaleString('en-US')}
+                                    {record.toLocaleDateString('en-US')}
                                 </ListItemText>
                             </ListItem>
                         );
