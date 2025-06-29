@@ -195,11 +195,9 @@ const LoggableEventsProvider = ({ offlineMode, children }: Props) => {
                     return eventData;
                 }
 
-                const prevTimestamps = eventData.timestamps.slice(0, 4);
-
                 return {
                     ...eventData,
-                    timestamps: [...prevTimestamps, dateToAdd].sort(sortDateObjectsByNewestFirst)
+                    timestamps: [...eventData.timestamps, dateToAdd].sort(sortDateObjectsByNewestFirst)
                 };
             })
         );
