@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -25,8 +25,8 @@ type Props = {
 };
 
 const LoggableEventsView = ({ offlineMode }: Props) => {
-    const { loadingStateIsShowing } = useComponentDisplayContext();
-    const { loggableEvents } = useLoggableEventsContext();
+    const { loadingStateIsShowing, showLoadingState, hideLoadingState } = useComponentDisplayContext();
+    const { loggableEvents, dataIsLoaded } = useLoggableEventsContext();
     const theme = useTheme();
 
     const [sidebarIsCollapsed, setSidebarIsCollapsed] = useState(false);
@@ -75,6 +75,14 @@ const LoggableEventsView = ({ offlineMode }: Props) => {
             </Grid>
         </Grid>
     );
+
+    // Show loading state when data is not loaded
+    useEffect(() => {
+        if (!dataIsLoaded) {
+            showLoadingState();
+        }
+        hideLoadingState();
+    }, [dataIsLoaded, showLoadingState, hideLoadingState]);
 
     return (
         <Paper
