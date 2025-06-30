@@ -5,14 +5,15 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
-import teal from '@mui/material/colors/teal';
+import blueGrey from '@mui/material/colors/blueGrey';
+import green from '@mui/material/colors/green';
 import KeyboardDoubleArrowRight from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { useTheme } from '@mui/material/styles';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { useComponentDisplayContext } from '../providers/ComponentDisplayProvider';
+import { AppTheme, useComponentDisplayContext } from '../providers/ComponentDisplayProvider';
 import { useLoggableEventsContext } from '../providers/LoggableEventsProvider';
 import CreateEventCard from './EventCards/CreateEventCard';
 import { EventCardSkeleton } from './EventCards/EventCard';
@@ -31,6 +32,8 @@ const LoggableEventsView = ({ offlineMode }: Props) => {
     const [sidebarIsCollapsed, setSidebarIsCollapsed] = useState(false);
     const expandSidebar = () => setSidebarIsCollapsed(false);
     const collapseSidebar = () => setSidebarIsCollapsed(true);
+
+    const isDarkMode = theme.palette.mode === AppTheme.Dark;
 
     const mainContent = (
         <Grid
@@ -96,7 +99,7 @@ const LoggableEventsView = ({ offlineMode }: Props) => {
                             onClick={expandSidebar}
                             css={css`
                                 :hover {
-                                    background-color: ${teal[200]};
+                                    background-color: ${isDarkMode ? blueGrey[600] : green[200]};
                                 }
                             `}
                         >
