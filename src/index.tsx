@@ -2,9 +2,9 @@ import '@fontsource/roboto';
 
 import * as React from 'react';
 import ReactDOM from 'react-dom/client';
-import CssBaseline from '@mui/material/CssBaseline';
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import CssBaseline from '@mui/material/CssBaseline';
 
 import './index.css';
 import App from './App';
