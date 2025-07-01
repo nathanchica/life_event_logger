@@ -21,8 +21,9 @@ import Typography from '@mui/material/Typography';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 
 import blue from '@mui/material/colors/blue';
-import grey from '@mui/material/colors/grey';
 import red from '@mui/material/colors/red';
+import orange from '@mui/material/colors/orange';
+import { useTheme } from '@mui/material/styles';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -50,6 +51,10 @@ const DaysSinceLastEventDisplay = ({
 }) => {
     const isViolatingThreshold = warningThresholdInDays > 0 && daysSinceLastEvent >= warningThresholdInDays;
 
+    // Detect dark mode using MUI's useTheme
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
+
     let textToDisplay = `Last event: ${daysSinceLastEvent} days ago`;
     if (daysSinceLastEvent === 0) {
         textToDisplay = `Last event: Today`;
@@ -57,16 +62,19 @@ const DaysSinceLastEventDisplay = ({
         textToDisplay = `Last event: Yesterday`;
     }
 
+    // Use orange[500] in dark mode, red[500] otherwise
+    const warningColor = isDarkMode ? orange[500] : red[500];
+
     return (
         <Box
             css={css`
                 margin-top: 8px;
-                color: ${isViolatingThreshold ? red[500] : 'inherit'};
+                color: ${isViolatingThreshold ? warningColor : 'inherit'};
             `}
         >
             <Stack direction="row" spacing={1}>
                 <Typography variant="caption">{textToDisplay}</Typography>
-                {isViolatingThreshold && <WarningAmberIcon color="error" fontSize="small" />}
+                {isViolatingThreshold && <WarningAmberIcon style={{ color: warningColor }} fontSize="small" />}
             </Stack>
         </Box>
     );
