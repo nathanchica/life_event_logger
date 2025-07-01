@@ -19,6 +19,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import Chip from '@mui/material/Chip';
 
 import blue from '@mui/material/colors/blue';
 import red from '@mui/material/colors/red';
@@ -158,12 +159,14 @@ const LoggableEventCard = ({ eventId }: Props) => {
         setDatepickerInputValue(undefined);
     };
 
-    const { loggableEvents, addTimestampToEvent, removeLoggableEvent } = useLoggableEventsContext();
+    const { loggableEvents, addTimestampToEvent, removeLoggableEvent, eventLabels } = useLoggableEventsContext();
     const currentLoggableEvent = loggableEvents.find(({ id }) => id === eventId);
 
     invariant(currentLoggableEvent, 'Must be a valid loggable event');
 
-    const { id, name, timestamps, warningThresholdInDays } = currentLoggableEvent;
+    const { id, name, timestamps, warningThresholdInDays, labelIds } = currentLoggableEvent;
+    const eventLabelObjects = labelIds && eventLabels ? eventLabels.filter(({ id }) => labelIds.includes(id)) : [];
+
     const currDate = new Date();
 
     const handleLogEventClick = async (dateToAdd?: Date | null) => {
@@ -310,6 +313,15 @@ const LoggableEventCard = ({ eventId }: Props) => {
                         />
                     ))}
                 </List>
+
+                {/* Event labels */}
+                {eventLabelObjects.length > 0 && (
+                    <Box mt={1} display="flex" flexWrap="wrap" gap={1}>
+                        {eventLabelObjects.map(({ id, name }) => (
+                            <Chip key={id} label={name} size="small" />
+                        ))}
+                    </Box>
+                )}
             </CardContent>
         </EventCard>
     );
