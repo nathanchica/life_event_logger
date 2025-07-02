@@ -1,34 +1,26 @@
-import { useState, ReactNode } from 'react';
+import { useState } from 'react';
 import { Moment } from 'moment';
 import invariant from 'tiny-invariant';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CardContent from '@mui/material/CardContent';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import Chip from '@mui/material/Chip';
 
-import blue from '@mui/material/colors/blue';
 import red from '@mui/material/colors/red';
 import orange from '@mui/material/colors/orange';
 import { useTheme } from '@mui/material/styles';
 
 import CancelIcon from '@mui/icons-material/Cancel';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
@@ -38,6 +30,7 @@ import { css } from '@emotion/react';
 import EditEventCard from './EditEventCard';
 import EventCard from './EventCard';
 import EventRecord from './EventRecord';
+import EventOptionsDropdown from './EventOptionsDropdown';
 import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
 import { getNumberOfDaysBetweenDates } from '../../utils/time';
 
@@ -78,49 +71,6 @@ const DaysSinceLastEventDisplay = ({
                 {isViolatingThreshold && <WarningAmberIcon style={{ color: warningColor }} fontSize="small" />}
             </Stack>
         </Box>
-    );
-};
-
-type EventOptionsDropdownProps = {
-    onDismiss: () => void;
-    onEditEventClick: () => void;
-    onDeleteEventClick: () => void;
-};
-
-const EventOptionsDropdown = ({ onDismiss, onEditEventClick, onDeleteEventClick }: EventOptionsDropdownProps) => {
-    const DropdownItem = ({ name, icon, onClick }: { name: string; icon: ReactNode; onClick: () => void }) => (
-        <ListItem disablePadding>
-            <ListItemButton
-                css={css`
-                    :hover {
-                        background-color: ${blue[100]};
-                    }
-                `}
-                onClick={onClick}
-            >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={name} />
-            </ListItemButton>
-        </ListItem>
-    );
-
-    return (
-        <ClickAwayListener onClickAway={onDismiss}>
-            <Paper
-                elevation={5}
-                css={css`
-                    position: absolute;
-                    width: 200px;
-                    // https://mui.com/material-ui/customization/z-index/#main-content
-                    z-index: 1500;
-                `}
-            >
-                <List disablePadding>
-                    <DropdownItem name="Edit event" icon={<EditIcon />} onClick={onEditEventClick} />
-                    <DropdownItem name="Delete event" icon={<DeleteIcon />} onClick={onDeleteEventClick} />
-                </List>
-            </Paper>
-        </ClickAwayListener>
     );
 };
 
