@@ -19,6 +19,7 @@ import Chip from '@mui/material/Chip';
 import red from '@mui/material/colors/red';
 import orange from '@mui/material/colors/orange';
 import { useTheme } from '@mui/material/styles';
+import { visuallyHidden } from '@mui/utils';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -65,10 +66,20 @@ const DaysSinceLastEventDisplay = ({
                 margin-top: 8px;
                 color: ${isViolatingThreshold ? warningColor : 'inherit'};
             `}
+            role="status"
+            aria-live={isViolatingThreshold ? 'polite' : 'off'}
+            aria-label={isViolatingThreshold ? `Warning: ${textToDisplay}` : textToDisplay}
         >
             <Stack direction="row" spacing={1}>
                 <Typography variant="caption">{textToDisplay}</Typography>
-                {isViolatingThreshold && <WarningAmberIcon style={{ color: warningColor }} fontSize="small" />}
+                {isViolatingThreshold && (
+                    <WarningAmberIcon
+                        style={{ color: warningColor }}
+                        fontSize="small"
+                        aria-label="Warning indicator"
+                        role="img"
+                    />
+                )}
             </Stack>
         </Box>
     );
@@ -122,10 +133,6 @@ const LoggableEventCard = ({ eventId }: Props) => {
     const handleLogEventClick = async (dateToAdd?: Date | null) => {
         const date = dateToAdd || currDate;
 
-        // Prevent duplicate logging for the same day
-        const alreadyLogged = timestamps.some((record: Date) => record.toDateString() === date.toDateString());
-        if (alreadyLogged) return;
-
         setIsSubmitting(true);
         await addTimestampToEvent(id, date);
         setIsSubmitting(false);
@@ -142,11 +149,13 @@ const LoggableEventCard = ({ eventId }: Props) => {
     };
 
     const handleDatepickerInputChange = (newDate: Moment | null) => {
-        setDatepickerInputValue(newDate?.toDate() || currDate);
+        // guaranteed non-null since MobileDatepicker's clearable is false
+        setDatepickerInputValue((newDate as Moment).toDate());
     };
 
     const handleDatepickerAccept = (newDate: Moment | null) => {
-        handleLogEventClick(newDate ? newDate.toDate() : null);
+        // guaranteed non-null since MobileDatepicker's clearable is false
+        handleLogEventClick((newDate as Moment).toDate());
         hideDatepicker();
     };
 
@@ -161,11 +170,11 @@ const LoggableEventCard = ({ eventId }: Props) => {
     return formIsShowing ? (
         <EditEventCard onDismiss={hideForm} eventIdToEdit={id} />
     ) : (
-        <EventCard>
+        <EventCard role="article" aria-labelledby={`event-title-${id}`}>
             <CardContent>
                 <Grid container alignItems="baseline">
                     <Grid item xs={11}>
-                        <Typography gutterBottom variant="h5">
+                        <Typography gutterBottom variant="h5" id={`event-title-${id}`} component="h2">
                             {name}
                         </Typography>
                     </Grid>
@@ -177,7 +186,9 @@ const LoggableEventCard = ({ eventId }: Props) => {
                         >
                             <IconButton
                                 onClick={showEventOptionsDropdown}
-                                aria-label="unregister event"
+                                aria-label={`Event options for ${name}`}
+                                aria-expanded={eventOptionsDropdownIsShowing}
+                                aria-haspopup="menu"
                                 component="span"
                             >
                                 <MoreVertIcon />
@@ -192,7 +203,7 @@ const LoggableEventCard = ({ eventId }: Props) => {
                         </Box>
                     </Grid>
                 </Grid>
-                <Stack direction="row" spacing={2}>
+                <Stack direction="row" spacing={2} role="group" aria-label="Event logging actions">
                     <LoadingButton
                         size="small"
                         loading={isSubmitting}
@@ -201,11 +212,23 @@ const LoggableEventCard = ({ eventId }: Props) => {
                             handleLogEventClick();
                         }}
                         variant="contained"
+                        aria-describedby={daysSinceLastEvent === 0 ? `today-disabled-${id}` : undefined}
                     >
                         Log Today
                     </LoadingButton>
+                    {daysSinceLastEvent === 0 && (
+                        <Box id={`today-disabled-${id}`} sx={visuallyHidden}>
+                            Already logged today
+                        </Box>
+                    )}
 
-                    <Button size="small" disableRipple onClick={showDatepicker}>
+                    <Button
+                        size="small"
+                        disableRipple
+                        onClick={showDatepicker}
+                        aria-expanded={datepickerIsShowing}
+                        aria-controls={datepickerIsShowing ? `datepicker-${id}` : undefined}
+                    >
                         Log custom date
                     </Button>
                 </Stack>
@@ -220,7 +243,14 @@ const LoggableEventCard = ({ eventId }: Props) => {
                 <List>
                     <Collapse in={datepickerIsShowing} orientation="vertical">
                         <ListItem disablePadding>
-                            <Stack mt={1} direction="row" alignItems="flex-start">
+                            <Stack
+                                mt={1}
+                                direction="row"
+                                alignItems="flex-start"
+                                id={`datepicker-${id}`}
+                                role="group"
+                                aria-label="Select date to log event"
+                            >
                                 <MobileDatePicker
                                     label="Event date"
                                     inputFormat="MM/D/yyyy"
@@ -235,14 +265,17 @@ const LoggableEventCard = ({ eventId }: Props) => {
                                         <TextField
                                             size="small"
                                             helperText="Pick a date to log an event for"
+                                            aria-describedby={`datepicker-help-${id}`}
                                             {...params}
                                         />
                                     )}
                                     onAccept={handleDatepickerAccept}
                                     onClose={hideDatepicker}
-                                    showTodayButton
                                 />
-                                <IconButton onClick={hideDatepicker}>
+                                <Box id={`datepicker-help-${id}`} sx={visuallyHidden}>
+                                    Dates already logged are disabled
+                                </Box>
+                                <IconButton onClick={hideDatepicker} aria-label="Cancel date selection">
                                     <CancelIcon />
                                 </IconButton>
                             </Stack>
@@ -250,25 +283,37 @@ const LoggableEventCard = ({ eventId }: Props) => {
                     </Collapse>
 
                     {timestamps.length > 0 && (
-                        <Typography variant="subtitle2">
+                        <Typography variant="subtitle2" id={`records-heading-${id}`} role="heading" aria-level={3}>
                             Records {timestamps.length >= MAX_RECORDS_TO_DISPLAY ? ' (Up to 5 most recent)' : ''}
                         </Typography>
                     )}
-                    {timestamps.slice(0, MAX_RECORDS_TO_DISPLAY).map((record: Date) => (
-                        <EventRecord
-                            key={`${id}-${record.toISOString()}`}
-                            eventId={id}
-                            recordDate={record}
-                            currentDate={currDate}
-                        />
-                    ))}
+                    <Box
+                        role="list"
+                        aria-labelledby={`records-heading-${id}`}
+                        aria-label={timestamps.length === 0 ? 'No event records' : `${timestamps.length} event records`}
+                    >
+                        {timestamps.slice(0, MAX_RECORDS_TO_DISPLAY).map((record: Date) => (
+                            <EventRecord
+                                key={`${id}-${record.toISOString()}`}
+                                eventId={id}
+                                recordDate={record}
+                                currentDate={currDate}
+                            />
+                        ))}
+                    </Box>
                 </List>
 
                 {/* Event labels */}
                 {eventLabelObjects.length > 0 && (
-                    <Box mt={1} display="flex" flexWrap="wrap" gap={1}>
-                        {eventLabelObjects.map(({ id, name }) => (
-                            <Chip key={id} label={name} size="small" />
+                    <Box mt={1} display="flex" flexWrap="wrap" gap={1} role="group" aria-label="Event labels">
+                        {eventLabelObjects.map(({ id: labelId, name: labelName }) => (
+                            <Chip
+                                key={labelId}
+                                label={labelName}
+                                size="small"
+                                role="listitem"
+                                aria-label={`Label: ${labelName}`}
+                            />
                         ))}
                     </Box>
                 )}
