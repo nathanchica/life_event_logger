@@ -19,7 +19,6 @@ describe('EditEventCard', () => {
         id: 'event-1',
         name: 'Existing Event',
         timestamps: [],
-        active: true,
         warningThresholdInDays: 14,
         labelIds: ['label-1']
     };

@@ -19,7 +19,6 @@ describe('LoggableEventCard', () => {
         id: 'event-1',
         name: 'Test Event',
         timestamps: [new Date('2023-01-15'), new Date('2023-01-10'), new Date('2023-01-05')],
-        active: true,
         warningThresholdInDays: 7,
         labelIds: ['label-1']
     };
