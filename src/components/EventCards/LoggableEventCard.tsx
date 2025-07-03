@@ -55,10 +55,10 @@ const LastEventDisplay = ({
         textToDisplay = `Last event: Today`;
     } else if (daysSinceLastEvent === 1) {
         textToDisplay = `Last event: Yesterday`;
-    } else if (daysSinceLastEvent > DAYS_IN_YEAR) {
+    } else if (daysSinceLastEvent >= DAYS_IN_YEAR) {
         const years = Math.floor(daysSinceLastEvent / DAYS_IN_YEAR);
         textToDisplay = `Last event: ${years} ${years === 1 ? 'year' : 'years'} ago`;
-    } else if (daysSinceLastEvent > DAYS_IN_MONTH) {
+    } else if (daysSinceLastEvent >= DAYS_IN_MONTH) {
         const months = Math.floor(daysSinceLastEvent / DAYS_IN_MONTH);
         textToDisplay = `Last event: ${months} ${months === 1 ? 'month' : 'months'} ago`;
     } else {
