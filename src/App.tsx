@@ -1,18 +1,21 @@
+import AuthProvider from './providers/AuthProvider';
 import ViewOptionsProvider from './providers/ViewOptionsProvider';
 import LoggableEventsProvider from './providers/LoggableEventsProvider';
 import EventLoggerPage from './components/EventLoggerPage';
 
 /**
  * Main application component that initializes the app and provides context providers.
- * It uses the AuthProvider's offline mode state.
+ * External providers in index.tsx
  */
 const App = () => {
     return (
-        <ViewOptionsProvider>
-            <LoggableEventsProvider>
-                <EventLoggerPage />
-            </LoggableEventsProvider>
-        </ViewOptionsProvider>
+        <AuthProvider>
+            <ViewOptionsProvider>
+                <LoggableEventsProvider>
+                    <EventLoggerPage />
+                </LoggableEventsProvider>
+            </ViewOptionsProvider>
+        </AuthProvider>
     );
 };
 

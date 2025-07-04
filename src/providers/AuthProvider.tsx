@@ -24,7 +24,7 @@ type Props = {
     children: ReactNode;
 };
 
-export const AuthProvider = ({ children }: Props) => {
+const AuthProvider = ({ children }: Props) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [isOfflineMode, setIsOfflineMode] = useState(false);
@@ -86,3 +86,5 @@ export const AuthProvider = ({ children }: Props) => {
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export default AuthProvider;

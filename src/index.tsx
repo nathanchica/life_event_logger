@@ -10,7 +10,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import './index.css';
 import App from './App';
-import { AuthProvider } from './providers/AuthProvider';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
@@ -40,14 +39,12 @@ const client = new ApolloClient({
 root.render(
     <React.StrictMode>
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
-            <AuthProvider>
-                <ApolloProvider client={client}>
-                    <LocalizationProvider dateAdapter={AdapterMoment}>
-                        <CssBaseline />
-                        <App />
-                    </LocalizationProvider>
-                </ApolloProvider>
-            </AuthProvider>
+            <ApolloProvider client={client}>
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <CssBaseline />
+                    <App />
+                </LocalizationProvider>
+            </ApolloProvider>
         </GoogleOAuthProvider>
     </React.StrictMode>
 );
