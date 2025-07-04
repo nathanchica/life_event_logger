@@ -1,12 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import invariant from 'tiny-invariant';
 
-interface User {
-    id: string;
-    email: string;
-    name: string;
-}
-
+import { User } from '../utils/types';
 interface AuthContextType {
     user: User | null;
     token: string | null;
