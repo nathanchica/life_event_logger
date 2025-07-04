@@ -106,10 +106,11 @@ const Sidebar = ({ isCollapsed, onCollapseSidebarClick, isOfflineMode }: Props) 
                                     overflow-y: auto;
                                 `}
                             >
-                                <EventLabelList isEditing={isEditingLabels} />
+                                <EventLabelList isShowingEditActions={isEditingLabels} />
                             </Box>
                         </Box>
                     </Collapse>
+
                     <Box
                         sx={{
                             position: 'absolute',
