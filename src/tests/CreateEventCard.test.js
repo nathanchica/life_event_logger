@@ -6,7 +6,7 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 import CreateEventCard from '../components/EventCards/CreateEventCard';
 import { LoggableEventsContext } from '../providers/LoggableEventsProvider';
-import { ComponentDisplayContext } from '../providers/ComponentDisplayProvider';
+import { ViewOptionsContext } from '../providers/ComponentDisplayProvider';
 
 describe('CreateEventCard', () => {
     const mockEventLabels = [
@@ -34,7 +34,7 @@ describe('CreateEventCard', () => {
             offlineMode: true
         };
 
-        const mockComponentDisplayContextValue = {
+        const mockViewOptionsContextValue = {
             activeEventLabelId: null,
             setActiveEventLabelId: jest.fn(),
             offlineMode: true
@@ -43,9 +43,9 @@ describe('CreateEventCard', () => {
         return render(
             <MockedProvider mocks={[]} addTypename={false}>
                 <LoggableEventsContext.Provider value={mockLoggableEventsContextValue}>
-                    <ComponentDisplayContext.Provider value={mockComponentDisplayContextValue}>
+                    <ViewOptionsContext.Provider value={mockViewOptionsContextValue}>
                         <LocalizationProvider dateAdapter={AdapterMoment}>{ui}</LocalizationProvider>
-                    </ComponentDisplayContext.Provider>
+                    </ViewOptionsContext.Provider>
                 </LoggableEventsContext.Provider>
             </MockedProvider>
         );

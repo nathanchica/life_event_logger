@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
 import Sidebar from '../components/Sidebar';
-import { ComponentDisplayContext, AppTheme } from '../providers/ComponentDisplayProvider';
+import { ViewOptionsContext, AppTheme } from '../providers/ViewOptionsProvider';
 import { LoggableEventsContext } from '../providers/LoggableEventsProvider';
 
 // Mock ClickAwayListener
@@ -87,7 +87,7 @@ function renderWithProviders(ui, options = {}) {
     return render(
         <ThemeProvider theme={muiTheme}>
             <LoggableEventsContext.Provider value={loggableEventsContextValue}>
-                <ComponentDisplayContext.Provider value={contextValue}>{ui}</ComponentDisplayContext.Provider>
+                <ViewOptionsContext.Provider value={contextValue}>{ui}</ViewOptionsContext.Provider>
             </LoggableEventsContext.Provider>
         </ThemeProvider>
     );
