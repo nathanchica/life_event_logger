@@ -4,7 +4,7 @@ import { gql, useQuery } from '@apollo/client';
 import LoggableEventsList from './LoggableEventsList';
 import { useAuth } from '../providers/AuthProvider';
 import { useLoggableEventsContext } from '../providers/LoggableEventsProvider';
-import { LoggableEvent } from '../utils/types';
+import { LoggableEvent, LoggableEventGQL } from '../utils/types';
 
 export const GET_LOGGABLE_EVENTS_FOR_USER = gql`
     query GetLoggableEventsForUser($userId: String!) {
@@ -37,12 +37,14 @@ const LoggableEventsGQL = () => {
 
     let fetchedLoggableEvents: Array<LoggableEvent> = [];
     if (dataIsFetched) {
-        fetchedLoggableEvents = data.user.loggableEvents.map((event: any) => ({
+        const loggableEvents: Array<LoggableEventGQL> = data.user.loggableEvents;
+        fetchedLoggableEvents = loggableEvents.map((event) => ({
             id: event.id,
             name: event.name,
-            timestamps: event.timestamps,
+            timestamps: event.timestamps.map((timestampIsoString) => new Date(timestampIsoString)),
+            createdAt: new Date(event.createdAt),
             warningThresholdInDays: event.warningThresholdInDays,
-            labelIds: event.labels ? event.labels.map(({ id }: any) => id) : [],
+            labelIds: event.labels ? event.labels.map(({ id }) => id) : [],
             isSynced: true
         }));
     }
