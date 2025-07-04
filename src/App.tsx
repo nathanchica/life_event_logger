@@ -1,6 +1,3 @@
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-
 import ViewOptionsProvider from './providers/ViewOptionsProvider';
 import LoggableEventsProvider from './providers/LoggableEventsProvider';
 import EventLoggerPage from './components/EventLoggerPage';
@@ -11,13 +8,11 @@ import EventLoggerPage from './components/EventLoggerPage';
  */
 const App = () => {
     return (
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-            <ViewOptionsProvider>
-                <LoggableEventsProvider>
-                    <EventLoggerPage />
-                </LoggableEventsProvider>
-            </ViewOptionsProvider>
-        </LocalizationProvider>
+        <ViewOptionsProvider>
+            <LoggableEventsProvider>
+                <EventLoggerPage />
+            </LoggableEventsProvider>
+        </ViewOptionsProvider>
     );
 };
 
