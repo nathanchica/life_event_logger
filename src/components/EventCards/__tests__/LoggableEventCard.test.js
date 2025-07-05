@@ -1,14 +1,14 @@
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
-import LoggableEventCard from '../LoggableEventCard';
-import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
-import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
 import { createMockEventLabel } from '../../../mocks/eventLabels';
 import { createMockLoggableEvent } from '../../../mocks/loggableEvent';
 import { createMockLoggableEventsContextValue, createMockViewOptionsContextValue } from '../../../mocks/providers';
+import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
+import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
+import LoggableEventCard from '../LoggableEventCard';
 
 describe('LoggableEventCard', () => {
     let mockContextValue;

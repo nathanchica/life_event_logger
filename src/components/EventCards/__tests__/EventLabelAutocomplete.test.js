@@ -1,12 +1,13 @@
 import React from 'react';
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EventLabelAutocomplete from '../EventLabelAutocomplete';
-import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
 import { createMockEventLabel } from '../../../mocks/eventLabels';
 import { createMockLoggableEventsContextValue } from '../../../mocks/providers';
+import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
 import { MAX_LABEL_LENGTH } from '../../../utils/validation';
+import EventLabelAutocomplete from '../EventLabelAutocomplete';
 
 describe('EventLabelAutocomplete', () => {
     const mockCreateEventLabel = jest.fn();

@@ -1,7 +1,7 @@
-import AuthProvider from './providers/AuthProvider';
-import ViewOptionsProvider from './providers/ViewOptionsProvider';
-import LoggableEventsProvider from './providers/LoggableEventsProvider';
 import EventLoggerPage from './components/EventLoggerPage';
+import AuthProvider from './providers/AuthProvider';
+import LoggableEventsProvider from './providers/LoggableEventsProvider';
+import ViewOptionsProvider from './providers/ViewOptionsProvider';
 
 /**
  * Main application component that initializes the app and provides context providers.

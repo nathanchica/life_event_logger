@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EventLabel from '../EventLabel';
-import { MAX_LABEL_LENGTH } from '../../../utils/validation';
-import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
-import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
 import { createMockEventLabel } from '../../../mocks/eventLabels';
 import { createMockLoggableEventsContextValue, createMockViewOptionsContextValue } from '../../../mocks/providers';
+import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
+import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
+import { MAX_LABEL_LENGTH } from '../../../utils/validation';
+import EventLabel from '../EventLabel';
 
 describe('EventLabel', () => {
     const mockUpdateEventLabel = jest.fn();

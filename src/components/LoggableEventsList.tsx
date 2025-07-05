@@ -1,9 +1,11 @@
 import Grid from '@mui/material/Grid';
-import LoggableEventCard from './EventCards/LoggableEventCard';
-import { EventCardSkeleton } from './EventCards/EventCard';
+
 import { useLoggableEventsContext } from '../providers/LoggableEventsProvider';
 import { useViewOptions } from '../providers/ViewOptionsProvider';
 import { LoggableEvent } from '../utils/types';
+
+import { EventCardSkeleton } from './EventCards/EventCard';
+import LoggableEventCard from './EventCards/LoggableEventCard';
 
 type Props = {
     offlineMode?: boolean;
@@ -37,7 +39,7 @@ const LoggableEventsList = ({ offlineMode = false }: Props) => {
         <>
             {filteredEvents.map(({ id, name }) => {
                 return (
-                    <Grid item key={`${name}-card`} role="listitem">
+                    <Grid item key={`${id}-card`} role="listitem">
                         <LoggableEventCard eventId={id} />
                     </Grid>
                 );

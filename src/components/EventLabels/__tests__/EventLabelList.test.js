@@ -1,10 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EventLabelList from '../EventLabelList';
 import LoggableEventsProvider from '../../../providers/LoggableEventsProvider';
 import ViewOptionsProvider from '../../../providers/ViewOptionsProvider';
 import { MAX_LABEL_LENGTH } from '../../../utils/validation';
+import EventLabelList from '../EventLabelList';
 
 describe('EventLabelList', () => {
     function renderWithProvider(ui) {

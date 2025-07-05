@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
+
 import { gql, useQuery } from '@apollo/client';
 
-import EventLabel, { createEventLabelFromFragment } from './EventLabels/EventLabel';
-import LoggableEventCard, { createLoggableEventFromFragment } from './EventCards/LoggableEventCard';
-import LoggableEventsView from './LoggableEventsView';
 import { useAuth } from '../providers/AuthProvider';
 import { useLoggableEventsContext } from '../providers/LoggableEventsProvider';
 import { EventLabel as EventLabelType, EventLabelFragment, LoggableEvent, LoggableEventFragment } from '../utils/types';
+
+import LoggableEventCard, { createLoggableEventFromFragment } from './EventCards/LoggableEventCard';
+import EventLabel, { createEventLabelFromFragment } from './EventLabels/EventLabel';
+import LoggableEventsView from './LoggableEventsView';
 
 export const GET_LOGGABLE_EVENTS_FOR_USER = gql`
     query GetLoggableEventsForUser($userId: String!) {

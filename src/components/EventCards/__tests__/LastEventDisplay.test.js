@@ -1,8 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import LastEventDisplay from '../LastEventDisplay';
+import { render, screen } from '@testing-library/react';
+
 import { DAYS_IN_YEAR, DAYS_IN_MONTH } from '../../../utils/time';
+import LastEventDisplay from '../LastEventDisplay';
 
 describe('LastEventDisplay', () => {
     const renderWithTheme = (component, isDarkMode = false) => {

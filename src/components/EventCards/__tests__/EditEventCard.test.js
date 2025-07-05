@@ -1,13 +1,13 @@
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import EditEventCard, { MAX_LENGTH } from '../EditEventCard';
-import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
-import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
 import { createMockEventLabel } from '../../../mocks/eventLabels';
 import { createMockLoggableEvent } from '../../../mocks/loggableEvent';
 import { createMockLoggableEventsContextValue, createMockViewOptionsContextValue } from '../../../mocks/providers';
+import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
+import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
+import EditEventCard, { MAX_LENGTH } from '../EditEventCard';
 
 describe('EditEventCard', () => {
     const mockOnDismiss = jest.fn();

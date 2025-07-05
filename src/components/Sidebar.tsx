@@ -1,23 +1,23 @@
 import { useState } from 'react';
-import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Paper from '@mui/material/Paper';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import blueGrey from '@mui/material/colors/blueGrey';
-import green from '@mui/material/colors/green';
+
+import { css } from '@emotion/react';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import EditIcon from '@mui/icons-material/Edit';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import Collapse from '@mui/material/Collapse';
+import blueGrey from '@mui/material/colors/blueGrey';
+import green from '@mui/material/colors/green';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import { useViewOptions } from '../providers/ViewOptionsProvider';
+
 import EventLabelList from './EventLabels/EventLabelList';
 
 type Props = {

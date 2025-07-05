@@ -1,13 +1,11 @@
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { useTheme } from '@mui/material/styles';
-import red from '@mui/material/colors/red';
-import orange from '@mui/material/colors/orange';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import Box from '@mui/material/Box';
+import orange from '@mui/material/colors/orange';
+import red from '@mui/material/colors/red';
+import Stack from '@mui/material/Stack';
+import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 
 import { DAYS_IN_YEAR, DAYS_IN_MONTH } from '../../utils/time';
 

@@ -1,12 +1,12 @@
+import { MockedProvider } from '@apollo/client/testing';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MockedProvider } from '@apollo/client/testing';
-import { ThemeProvider } from '@mui/material/styles';
-import { createTheme } from '@mui/material/styles';
-import LoginView, { LOGIN_MUTATION } from '../LoginView';
-import { AuthContext } from '../../providers/AuthProvider';
+
 import { createMockAuthContextValue } from '../../mocks/providers';
 import { createMockUser } from '../../mocks/user';
+import { AuthContext } from '../../providers/AuthProvider';
+import LoginView, { LOGIN_MUTATION } from '../LoginView';
 
 // Mock the Google OAuth components
 jest.mock('@react-oauth/google', () => ({

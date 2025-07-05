@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
+
 import { createMockLoggableEvent } from '../../../mocks/loggableEvent';
 import { createMockLoggableEventsContextValue } from '../../../mocks/providers';
-
+import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
 import EventRecord from '../EventRecord';
 
 describe('EventRecord', () => {

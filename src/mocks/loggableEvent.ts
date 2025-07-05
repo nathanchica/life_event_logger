@@ -1,4 +1,5 @@
 import { LoggableEvent, LoggableEventFragment } from '../utils/types';
+
 import { createMockEventLabel, createMockEventLabelFragment } from './eventLabels';
 
 const mockLoggableEvent: LoggableEvent = {

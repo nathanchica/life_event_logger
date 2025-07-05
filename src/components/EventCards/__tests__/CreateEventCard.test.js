@@ -1,14 +1,14 @@
+import { MockedProvider } from '@apollo/client/testing';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MockedProvider } from '@apollo/client/testing';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
-import CreateEventCard from '../CreateEventCard';
-import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
-import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
 import { createMockEventLabel } from '../../../mocks/eventLabels';
 import { createMockLoggableEventsContextValue, createMockViewOptionsContextValue } from '../../../mocks/providers';
+import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
+import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
+import CreateEventCard from '../CreateEventCard';
 
 describe('CreateEventCard', () => {
     const mockCreateLoggableEvent = jest.fn();

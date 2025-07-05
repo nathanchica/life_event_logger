@@ -1,29 +1,28 @@
 import { useState, ChangeEventHandler, SyntheticEvent } from 'react';
 
+import { css } from '@emotion/react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import Collapse from '@mui/material/Collapse';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-import FormGroup from '@mui/material/FormGroup';
+import Collapse from '@mui/material/Collapse';
+import blueGrey from '@mui/material/colors/blueGrey';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import { useTheme } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import blueGrey from '@mui/material/colors/blueGrey';
-import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { useLoggableEventsContext, EVENT_DEFAULT_VALUES } from '../../providers/LoggableEventsProvider';
+import { useViewOptions } from '../../providers/ViewOptionsProvider';
+import { EventLabel } from '../../utils/types';
 
 import EventCard from './EventCard';
 import EventLabelAutocomplete from './EventLabelAutocomplete';
 import WarningThresholdForm from './WarningThresholdForm';
-import { useLoggableEventsContext, EVENT_DEFAULT_VALUES } from '../../providers/LoggableEventsProvider';
-import { useViewOptions } from '../../providers/ViewOptionsProvider';
-import { EventLabel } from '../../utils/types';
 
 export const MAX_LENGTH = 25;
 

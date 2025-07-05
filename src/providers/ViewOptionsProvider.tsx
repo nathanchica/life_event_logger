@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
-import invariant from 'tiny-invariant';
+
 import useMediaQuery from '@mui/material/useMediaQuery';
+import invariant from 'tiny-invariant';
 
 export type AppTheme = 'light' | 'dark';
 

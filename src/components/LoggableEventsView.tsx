@@ -1,21 +1,19 @@
 import { useState } from 'react';
 
+import { css } from '@emotion/react';
+import KeyboardDoubleArrowRight from '@mui/icons-material/KeyboardDoubleArrowRight';
 import Box from '@mui/material/Box';
+import blueGrey from '@mui/material/colors/blueGrey';
+import green from '@mui/material/colors/green';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
-import Tooltip from '@mui/material/Tooltip';
-import blueGrey from '@mui/material/colors/blueGrey';
-import green from '@mui/material/colors/green';
-import KeyboardDoubleArrowRight from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { useTheme } from '@mui/material/styles';
-
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import Tooltip from '@mui/material/Tooltip';
 
 import CreateEventCard from './EventCards/CreateEventCard';
-import Sidebar from './Sidebar';
 import LoggableEventsList from './LoggableEventsList';
+import Sidebar from './Sidebar';
 
 type Props = {
     offlineMode?: boolean;
