@@ -17,14 +17,10 @@ import Typography from '@mui/material/Typography';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import Chip from '@mui/material/Chip';
 
-import red from '@mui/material/colors/red';
-import orange from '@mui/material/colors/orange';
-import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
@@ -34,8 +30,9 @@ import EventCard from './EventCard';
 import EventLabel from '../EventLabels/EventLabel';
 import EventRecord from './EventRecord';
 import EventOptionsDropdown from './EventOptionsDropdown';
+import LastEventDisplay from './LastEventDisplay';
 import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
-import { getNumberOfDaysBetweenDates, DAYS_IN_YEAR, DAYS_IN_MONTH } from '../../utils/time';
+import { getNumberOfDaysBetweenDates } from '../../utils/time';
 import { LoggableEvent, LoggableEventFragment } from '../../utils/types';
 
 const MAX_RECORDS_TO_DISPLAY = 5;
@@ -70,62 +67,6 @@ export const createLoggableEventFromFragment = ({
         labelIds: labels ? labels.map(({ id }) => id) : [],
         isSynced: true
     };
-};
-
-const LastEventDisplay = ({
-    daysSinceLastEvent,
-    warningThresholdInDays
-}: {
-    daysSinceLastEvent: number;
-    warningThresholdInDays: number;
-}) => {
-    const isViolatingThreshold = warningThresholdInDays > 0 && daysSinceLastEvent >= warningThresholdInDays;
-
-    // Detect dark mode using MUI's useTheme
-    const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
-
-    let textToDisplay;
-    if (daysSinceLastEvent === 0) {
-        textToDisplay = `Last event: Today`;
-    } else if (daysSinceLastEvent === 1) {
-        textToDisplay = `Last event: Yesterday`;
-    } else if (daysSinceLastEvent >= DAYS_IN_YEAR) {
-        const years = Math.floor(daysSinceLastEvent / DAYS_IN_YEAR);
-        textToDisplay = `Last event: ${years} ${years === 1 ? 'year' : 'years'} ago`;
-    } else if (daysSinceLastEvent >= DAYS_IN_MONTH) {
-        const months = Math.floor(daysSinceLastEvent / DAYS_IN_MONTH);
-        textToDisplay = `Last event: ${months} ${months === 1 ? 'month' : 'months'} ago`;
-    } else {
-        textToDisplay = `Last event: ${daysSinceLastEvent} days ago`;
-    }
-
-    // Use orange[500] in dark mode, red[500] otherwise
-    const warningColor = isDarkMode ? orange[500] : red[500];
-
-    return (
-        <Box
-            css={css`
-                margin-top: 8px;
-                color: ${isViolatingThreshold ? warningColor : 'inherit'};
-            `}
-            role="status"
-            aria-live={isViolatingThreshold ? 'polite' : 'off'}
-            aria-label={isViolatingThreshold ? `Warning: ${textToDisplay}` : textToDisplay}
-        >
-            <Stack direction="row" spacing={1}>
-                <Typography variant="caption">{textToDisplay}</Typography>
-                {isViolatingThreshold && (
-                    <WarningAmberIcon
-                        style={{ color: warningColor }}
-                        fontSize="small"
-                        aria-label="Warning indicator"
-                        role="img"
-                    />
-                )}
-            </Stack>
-        </Box>
-    );
 };
 
 type Props = {
