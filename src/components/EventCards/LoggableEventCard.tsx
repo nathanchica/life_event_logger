@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { gql } from '@apollo/client';
 import { Moment } from 'moment';
 import invariant from 'tiny-invariant';
 import Box from '@mui/material/Box';
@@ -30,12 +31,46 @@ import { css } from '@emotion/react';
 
 import EditEventCard from './EditEventCard';
 import EventCard from './EventCard';
+import EventLabel from '../EventLabels/EventLabel';
 import EventRecord from './EventRecord';
 import EventOptionsDropdown from './EventOptionsDropdown';
 import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
 import { getNumberOfDaysBetweenDates, DAYS_IN_YEAR, DAYS_IN_MONTH } from '../../utils/time';
+import { LoggableEvent, LoggableEventFragment } from '../../utils/types';
 
 const MAX_RECORDS_TO_DISPLAY = 5;
+
+const LOGGABLE_EVENT_FRAGMENT = gql`
+    fragment LoggableEventFragment on LoggableEvent {
+        name
+        timestamps
+        warningThresholdInDays
+        createdAt
+        labels {
+            ...EventLabelFragment
+        }
+    }
+    ${EventLabel.fragments.eventLabel}
+`;
+
+export const createLoggableEventFromFragment = ({
+    id,
+    name,
+    timestamps,
+    createdAt,
+    warningThresholdInDays,
+    labels
+}: LoggableEventFragment): LoggableEvent => {
+    return {
+        id,
+        name,
+        timestamps: timestamps.map((timestampIsoString) => new Date(timestampIsoString)),
+        createdAt: new Date(createdAt),
+        warningThresholdInDays,
+        labelIds: labels ? labels.map(({ id }) => id) : [],
+        isSynced: true
+    };
+};
 
 const LastEventDisplay = ({
     daysSinceLastEvent,
@@ -105,6 +140,11 @@ type Props = {
  * If the event has not been logged for a certain number of days, it displays a warning.
  */
 const LoggableEventCard = ({ eventId }: Props) => {
+    const { loggableEvents, addTimestampToEvent, deleteLoggableEvent, eventLabels } = useLoggableEventsContext();
+    const currentLoggableEvent = loggableEvents.find(({ id }) => id === eventId);
+
+    invariant(currentLoggableEvent, 'Must be a valid loggable event');
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [eventOptionsDropdownIsShowing, setEventOptionsDropdownIsShowing] = useState(false);
@@ -127,11 +167,6 @@ const LoggableEventCard = ({ eventId }: Props) => {
         setDatepickerIsShowing(false);
         setDatepickerInputValue(undefined);
     };
-
-    const { loggableEvents, addTimestampToEvent, deleteLoggableEvent, eventLabels } = useLoggableEventsContext();
-    const currentLoggableEvent = loggableEvents.find(({ id }) => id === eventId);
-
-    invariant(currentLoggableEvent, 'Must be a valid loggable event');
 
     const { id, name, timestamps, warningThresholdInDays, labelIds } = currentLoggableEvent;
     const eventLabelObjects = labelIds && eventLabels ? eventLabels.filter(({ id }) => labelIds.includes(id)) : [];
@@ -328,6 +363,10 @@ const LoggableEventCard = ({ eventId }: Props) => {
             </CardContent>
         </EventCard>
     );
+};
+
+LoggableEventCard.fragments = {
+    loggableEvent: LOGGABLE_EVENT_FRAGMENT
 };
 
 export default LoggableEventCard;

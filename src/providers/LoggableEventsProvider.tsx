@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import invariant from 'tiny-invariant';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -48,6 +48,11 @@ type LoggableEventsContextType = {
      */
     loadLoggableEvents: (loggableEvents: Array<LoggableEvent>) => void;
     /**
+     * Loads event labels into the context.
+     * This is used to load initial data or to update the context with new data.
+     */
+    loadEventLabels: (eventLabels: Array<EventLabel>) => void;
+    /**
      * Adds a timestamp record to a loggable event. Sorts log records by datetime in descending order (newest first).
      */
     addTimestampToEvent: (eventId: string, dateToAdd: Date) => void;
@@ -96,6 +101,8 @@ const LoggableEventsProvider = ({ children }: Props) => {
      */
     const [loggableEvents, setLoggableEvents] = useState<Array<LoggableEvent>>([]);
     const [eventLabels, setEventLabels] = useState<Array<EventLabel>>([]);
+    const [loggableEventsIsLoaded, setLoggableEventsIsLoaded] = useState<boolean>(false);
+    const [eventLabelsIsLoaded, setEventLabelsIsLoaded] = useState<boolean>(false);
     const [dataIsLoaded, setDataIsLoaded] = useState<boolean>(false);
 
     /**
@@ -122,7 +129,12 @@ const LoggableEventsProvider = ({ children }: Props) => {
 
     const loadLoggableEvents = (loggableEvents: Array<LoggableEvent>) => {
         setLoggableEvents(loggableEvents);
-        setDataIsLoaded(true);
+        setLoggableEventsIsLoaded(true);
+    };
+
+    const loadEventLabels = (eventLabels: Array<EventLabel>) => {
+        setEventLabels(eventLabels);
+        setEventLabelsIsLoaded(true);
     };
 
     const addTimestampToEvent = (eventId: string, dateToAdd: Date) => {
@@ -195,12 +207,19 @@ const LoggableEventsProvider = ({ children }: Props) => {
         setEventLabels((prevData) => prevData.filter(({ id }) => id !== eventLabelIdToRemove));
     };
 
+    useEffect(() => {
+        if (loggableEventsIsLoaded && eventLabelsIsLoaded) {
+            setDataIsLoaded(true);
+        }
+    }, [loggableEventsIsLoaded, eventLabelsIsLoaded]);
+
     const contextValue: LoggableEventsContextType = {
         loggableEvents,
         eventLabels,
         dataIsLoaded,
         createLoggableEvent,
         loadLoggableEvents,
+        loadEventLabels,
         addTimestampToEvent,
         updateLoggableEventDetails,
         deleteLoggableEvent,
