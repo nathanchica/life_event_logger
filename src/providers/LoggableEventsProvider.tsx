@@ -19,7 +19,7 @@ export const EVENT_DEFAULT_VALUES: LoggableEvent = {
     isSynced: false
 };
 
-type LoggableEventsContextType = {
+export type LoggableEventsContextType = {
     /**
      * List of loggable events. A loggable event is a repeatable action that can be logged.
      */

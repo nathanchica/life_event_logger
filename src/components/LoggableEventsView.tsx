@@ -13,7 +13,6 @@ import { useTheme } from '@mui/material/styles';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { AppTheme } from '../providers/ViewOptionsProvider';
 import CreateEventCard from './EventCards/CreateEventCard';
 import Sidebar from './Sidebar';
 import LoggableEventsList from './LoggableEventsList';
@@ -34,7 +33,7 @@ const LoggableEventsView = ({ offlineMode = false }: Props) => {
     const expandSidebar = () => setSidebarIsCollapsed(false);
     const collapseSidebar = () => setSidebarIsCollapsed(true);
 
-    const isDarkMode = theme.palette.mode === AppTheme.Dark;
+    const isDarkMode = theme.palette.mode === 'dark';
 
     const mainContent = (
         <Grid
