@@ -179,4 +179,24 @@ describe('LoggableEventCard', () => {
         renderWithProviders();
         expect(screen.getByText(expectedText)).toBeInTheDocument();
     });
+
+    it('handles logging custom date', async () => {
+        renderWithProviders({
+            loggableEvents: [
+                createMockLoggableEvent({
+                    id: 'event-1',
+                    name: 'Exercise',
+                    timestamps: [],
+                    labelIds: []
+                })
+            ]
+        });
+        expect(screen.queryByText(/Records/)).not.toBeInTheDocument();
+        userEvent.click(screen.getByRole('button', { name: 'Log custom date' }));
+        const dateInput = screen.getByLabelText(/event date/i);
+        await userEvent.click(dateInput);
+        const okButton = await screen.findByRole('button', { name: /ok/i });
+        await userEvent.click(okButton);
+        expect(mockAddTimestampToEvent).toHaveBeenCalledWith('event-1', expect.any(Date));
+    });
 });
