@@ -2,9 +2,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
-import Sidebar from '../components/Sidebar';
-import { ViewOptionsContext } from '../providers/ViewOptionsProvider';
-import { LoggableEventsContext } from '../providers/LoggableEventsProvider';
+import Sidebar from '../Sidebar';
+import { ViewOptionsContext } from '../../providers/ViewOptionsProvider';
+import { LoggableEventsContext } from '../../providers/LoggableEventsProvider';
 
 // Mock ClickAwayListener
 jest.mock('@mui/material/ClickAwayListener', () => {
