@@ -16,11 +16,10 @@ import { css } from '@emotion/react';
 import { AppTheme } from '../providers/ViewOptionsProvider';
 import CreateEventCard from './EventCards/CreateEventCard';
 import Sidebar from './Sidebar';
-import LoggableEventsGQL from './LoggableEventsGQL';
 import LoggableEventsList from './LoggableEventsList';
 
 type Props = {
-    offlineMode: boolean;
+    offlineMode?: boolean;
 };
 
 /**
@@ -28,7 +27,7 @@ type Props = {
  * It shows a list of loggable events and allows users to create new events.
  * It includes a sidebar for navigation and a loading state while data is being fetched.
  */
-const LoggableEventsView = ({ offlineMode }: Props) => {
+const LoggableEventsView = ({ offlineMode = false }: Props) => {
     const theme = useTheme();
 
     const [sidebarIsCollapsed, setSidebarIsCollapsed] = useState(false);
@@ -51,7 +50,7 @@ const LoggableEventsView = ({ offlineMode }: Props) => {
                 <Grid item role="listitem">
                     <CreateEventCard />
                 </Grid>
-                {offlineMode ? <LoggableEventsList offlineMode /> : <LoggableEventsGQL />}
+                <LoggableEventsList offlineMode={offlineMode} />
             </Grid>
         </Grid>
     );
