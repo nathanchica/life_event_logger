@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+
 import { useState, ChangeEventHandler, SyntheticEvent } from 'react';
 
 import { css } from '@emotion/react';

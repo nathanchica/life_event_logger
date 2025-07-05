@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+
 import { ReactNode, ComponentProps } from 'react';
 
 import { css } from '@emotion/react';
