@@ -7,56 +7,43 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import CreateEventCard from '../CreateEventCard';
 import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
 import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
+import { createMockEventLabel } from '../../../mocks/eventLabels';
+import { createMockLoggableEventsContextValue, createMockViewOptionsContextValue } from '../../../mocks/providers';
 
 describe('CreateEventCard', () => {
+    const mockCreateLoggableEvent = jest.fn();
     const mockEventLabels = [
-        { id: 'label-1', name: 'Work' },
-        { id: 'label-2', name: 'Personal' }
+        createMockEventLabel({ id: 'label-1', name: 'Work' }),
+        createMockEventLabel({ id: 'label-2', name: 'Personal' })
     ];
 
-    const mockCreateLoggableEvent = jest.fn();
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-    function renderWithProvider(ui, options = {}) {
+    const renderWithProviders = (component, options = {}) => {
         const { eventLabels = mockEventLabels } = options;
 
-        const mockLoggableEventsContextValue = {
-            loggableEvents: [],
-            createLoggableEvent: mockCreateLoggableEvent,
-            updateLoggableEventDetails: jest.fn(),
-            deleteLoggableEvent: jest.fn(),
-            logEvent: jest.fn(),
-            deleteEventTimestamp: jest.fn(),
-            addTimestampToEvent: jest.fn(),
-            removeLoggableEvent: jest.fn(),
+        const mockLoggableEventsValue = createMockLoggableEventsContextValue({
             eventLabels,
-            createEventLabel: jest.fn(),
-            deleteEventLabel: jest.fn(),
-            offlineMode: true
-        };
+            createLoggableEvent: mockCreateLoggableEvent
+        });
 
-        const mockViewOptionsContextValue = {
-            activeEventLabelId: null,
-            setActiveEventLabelId: jest.fn(),
-            offlineMode: true
-        };
+        const mockViewOptionsValue = createMockViewOptionsContextValue();
 
         return render(
             <MockedProvider mocks={[]} addTypename={false}>
-                <LoggableEventsContext.Provider value={mockLoggableEventsContextValue}>
-                    <ViewOptionsContext.Provider value={mockViewOptionsContextValue}>
-                        <LocalizationProvider dateAdapter={AdapterMoment}>{ui}</LocalizationProvider>
+                <LoggableEventsContext.Provider value={mockLoggableEventsValue}>
+                    <ViewOptionsContext.Provider value={mockViewOptionsValue}>
+                        <LocalizationProvider dateAdapter={AdapterMoment}>{component}</LocalizationProvider>
                     </ViewOptionsContext.Provider>
                 </LoggableEventsContext.Provider>
             </MockedProvider>
         );
-    }
-
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+    };
 
     it('renders the add event button', () => {
-        renderWithProvider(<CreateEventCard />);
+        renderWithProviders(<CreateEventCard />);
 
         const addButton = screen.getByRole('button', { name: 'Add event' });
         expect(addButton).toBeInTheDocument();
@@ -64,7 +51,7 @@ describe('CreateEventCard', () => {
     });
 
     it('toggles between card and form views', async () => {
-        renderWithProvider(<CreateEventCard />);
+        renderWithProviders(<CreateEventCard />);
 
         // Initial state - card view
         expect(screen.getByRole('button', { name: 'Add event' })).toBeInTheDocument();
