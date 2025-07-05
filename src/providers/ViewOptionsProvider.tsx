@@ -3,7 +3,7 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import invariant from 'tiny-invariant';
 
-export type AppTheme = 'light' | 'dark';
+type AppTheme = 'light' | 'dark';
 
 export type ViewOptionsContextType = {
     theme: AppTheme;

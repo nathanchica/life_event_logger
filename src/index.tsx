@@ -2,7 +2,7 @@ import '@fontsource/roboto';
 
 import * as React from 'react';
 
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
@@ -14,7 +14,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import './index.css';
 import App from './App';
 
-const root = ReactDOM.createRoot(document.getElementById('root') as Element);
+const root = createRoot(document.getElementById('root') as Element);
 
 /**
  * Adding user authorization token to request headers

@@ -37,9 +37,9 @@ const LoggableEventsList = ({ offlineMode = false }: Props) => {
 
     return (
         <>
-            {filteredEvents.map(({ id, name }) => {
+            {filteredEvents.map(({ id }) => {
                 return (
-                    <Grid item key={`${id}-card`} role="listitem">
+                    <Grid item key={id} role="listitem">
                         <LoggableEventCard eventId={id} />
                     </Grid>
                 );

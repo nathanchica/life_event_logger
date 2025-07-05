@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -35,7 +35,7 @@ describe('EventLabelAutocomplete', () => {
     };
 
     function TestEventLabelAutocomplete({ initialSelectedLabels = [] }) {
-        const [selectedLabels, setSelectedLabels] = React.useState(initialSelectedLabels);
+        const [selectedLabels, setSelectedLabels] = useState(initialSelectedLabels);
         return <EventLabelAutocomplete selectedLabels={selectedLabels} setSelectedLabels={setSelectedLabels} />;
     }
 

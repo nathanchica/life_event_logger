@@ -39,7 +39,7 @@ export interface LoggableEvent {
  * GQL Fragment types
  */
 
-export type UserGQL = {
+export type UserFragment = {
     /** Unique id of the user */
     id: string;
     /** Email of the user */

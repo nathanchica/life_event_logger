@@ -2,7 +2,7 @@
 
 import { EventLabel } from '../utils/types';
 
-export enum EventLabelNameValidationError {
+enum EventLabelNameValidationError {
     EmptyName = 'EmptyName',
     /** The event label name is too long */
     TooLongName = 'TooLongName',
