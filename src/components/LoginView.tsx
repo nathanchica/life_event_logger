@@ -13,7 +13,7 @@ import { css } from '@emotion/react';
 
 import { useAuth } from '../providers/AuthProvider';
 
-const LOGIN_MUTATION = gql`
+export const LOGIN_MUTATION = gql`
     mutation Login($googleToken: String!) {
         login(googleToken: $googleToken) {
             token
