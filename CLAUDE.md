@@ -49,18 +49,28 @@ const renderWithProviders = (component) => {
 Consolidate similar tests using `it.each` to reduce duplication:
 
 ```javascript
-// Good - Consolidated tests
+// Good - Consolidated tests with description first
 it.each([
-  ['Work', 'work-label', '#1976d2'],
-  ['Personal', 'personal-label', '#388e3c'],
-  ['Health', 'health-label', '#d32f2f']
-])('renders %s label with correct color %s', async (labelName, labelId, expectedColor) => {
-  const mockLabel = createMockEventLabel({ id: labelId, name: labelName, color: expectedColor });
+  ['Work label', 'work-label', '#1976d2'],
+  ['Personal label', 'personal-label', '#388e3c'],
+  ['Health label', 'health-label', '#d32f2f']
+])('renders %s with correct color', (description, labelId, expectedColor) => {
+  const mockLabel = createMockEventLabel({ id: labelId, name: description.split(' ')[0], color: expectedColor });
   renderWithProviders(<EventLabel label={mockLabel} />);
   
-  const label = screen.getByText(labelName);
+  const label = screen.getByText(description.split(' ')[0]);
   expect(label).toBeInTheDocument();
   expect(label).toHaveStyle({ backgroundColor: expectedColor });
+});
+
+// Good - When description is only for test name, use underscore for unused parameter
+it.each([
+  ['empty disabled dates', []],
+  ['single disabled date', [new Date('2023-01-01')]],
+  ['multiple disabled dates', [date1, date2, date3]]
+])('handles %s', (_, dates) => {
+  renderWithProviders(<EventDatepicker disabledDates={dates} />);
+  expect(screen.getByLabelText(/event date/i)).toBeInTheDocument();
 });
 
 // Bad - Repetitive tests
@@ -76,6 +86,12 @@ it('renders Personal label', () => {
   expect(screen.getByText('Personal')).toBeInTheDocument();
 });
 ```
+
+#### it.each Best Practices
+- Put descriptive strings first in the array for better test output
+- Use underscore (`_`) for unused parameters instead of naming them
+- Keep test data arrays readable and well-formatted
+- Avoid using objects as the first parameter as they don't display well in test names
 
 #### Avoid Conditionals in Tests
 Never put `expect()` statements inside conditionals:
@@ -256,8 +272,46 @@ expect(screen.getByText('Submit')).toBeInTheDocument();
 expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
 expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
 
+// For elements with aria-label but no accessible name
+expect(screen.getByLabelText(/cancel date selection/i)).toBeInTheDocument();
+
 // Query by test id only as last resort
 expect(screen.getByTestId('custom-element')).toBeInTheDocument();
+
+// AVOID querySelector - use Testing Library queries instead
+// Bad
+const element = container.querySelector('.MuiStack-root');
+
+// Good
+const element = screen.getByRole('group');
+```
+
+#### Testing Visibility and Hidden Elements
+
+When testing element visibility, understand the difference between existence and visibility:
+
+```javascript
+// Element exists in DOM but may not be visible
+expect(element).toBeInTheDocument();
+
+// Element is visible to users
+expect(element).toBeVisible();
+
+// Element is in DOM but not visible
+expect(element).not.toBeVisible();
+```
+
+For hidden elements (like in collapsed states), you may need to use the `hidden` option:
+
+```javascript
+// Bad - Will fail if element is hidden
+const button = screen.getByRole('button', { name: /cancel/i });
+
+// Good - Finds hidden elements when needed
+const button = screen.getByRole('button', { name: /cancel/i, hidden: true });
+
+// Alternative - Use getByLabelText for elements with aria-label
+const button = screen.getByLabelText(/cancel date selection/i);
 ```
 
 #### Testing MUI Collapse Components
@@ -286,16 +340,17 @@ it('shows content when expanded', async () => {
   expect(screen.getByTestId('collapsible-content')).toBeVisible();
 });
 
-// Good - Testing both states
-it.each([
-  ['collapsed', false],
-  ['expanded', true]
-])('renders content as %s', async (state, shouldBeVisible) => {
-  renderWithProviders(<CollapsibleSection defaultExpanded={shouldBeVisible} />);
-  
-  const content = screen.getByTestId('collapsible-content');
-  expect(content).toBeInTheDocument(); // Element exists
-  expect(content)[shouldBeVisible ? 'toBeVisible' : 'not']['toBeVisible']();
+// Good - Testing visibility states without conditionals
+it('shows content when isShowing is true', () => {
+  renderWithProviders(<Component isShowing={true} />);
+  expect(screen.getByLabelText(/event date/i)).toBeVisible();
+});
+
+it('hides content when isShowing is false', () => {
+  renderWithProviders(<Component isShowing={false} />);
+  const element = screen.getByLabelText(/event date/i);
+  expect(element).toBeInTheDocument();
+  expect(element).not.toBeVisible();
 });
 ```
 
@@ -359,7 +414,48 @@ yarn test src/components/EventCards/__tests__/EventRecord.test.js
 yarn test --coverage
 ```
 
-### 11. Test Coverage Goals
+### 11. Testing Complex Components
+
+When testing components that integrate with complex third-party libraries (like MUI date pickers):
+
+#### Prefer Real Components Over Mocks
+```javascript
+// Good - Test with the actual component
+it('accepts current date when picker is used', async () => {
+  renderWithProviders();
+  
+  const dateInput = screen.getByLabelText(/event date/i);
+  await userEvent.click(dateInput);
+  
+  // Interact with the actual MUI dialog
+  const okButton = await screen.findByRole('button', { name: /ok/i });
+  if (okButton) {
+    await userEvent.click(okButton);
+    expect(mockOnAccept).toHaveBeenCalled();
+  }
+});
+
+// Bad - Mocking the entire component
+jest.mock('@mui/x-date-pickers/MobileDatePicker', () => ({
+  MobileDatePicker: MockComponent
+}));
+```
+
+#### Testing Principles for Complex Components
+1. **Real User Interactions** - Simulate what users actually do rather than calling handlers directly
+2. **No Mocking When Possible** - Test with real components to ensure integration works correctly
+3. **Pragmatic Approach** - Use `findBy` queries for elements that appear asynchronously (like dialogs)
+4. **Accept Testing Limitations** - Some internal callbacks may be difficult to test without mocking; focus on user-facing behavior instead
+
+#### When Testing is Challenging
+If achieving 100% coverage requires complex mocking:
+1. First try interacting with the real component
+2. Look for accessible elements (buttons, inputs) in rendered dialogs/modals
+3. Use `findBy` queries for async elements
+4. Consider if the untested code is critical - internal implementation details may not need testing
+5. Document why certain lines can't be tested without mocking
+
+### 12. Test Coverage Goals
 - Aim for high coverage on business logic and user interactions
 - Don't test implementation details
 - Focus on testing behavior, not internal state
@@ -368,3 +464,7 @@ yarn test --coverage
   - Business logic and data transformations
   - Error states and edge cases
   - Accessibility features
+- For complex third-party integrations:
+  - Test the integration points
+  - Verify user-facing behavior
+  - Don't mock unless absolutely necessary
