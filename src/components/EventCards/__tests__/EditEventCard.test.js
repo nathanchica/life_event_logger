@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { MockedProvider } from '@apollo/client/testing';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import EditEventCard, { MAX_LENGTH } from '../components/EventCards/EditEventCard';
-import { LoggableEventsContext } from '../providers/LoggableEventsProvider';
-import { ViewOptionsContext } from '../providers/ViewOptionsProvider';
+import EditEventCard, { MAX_LENGTH } from '../EditEventCard';
+import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
+import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
 
 describe('EditEventCard', () => {
     // Default test data
