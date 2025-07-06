@@ -4,32 +4,15 @@ import { useLoggableEventsContext } from '../providers/LoggableEventsProvider';
 import { useViewOptions } from '../providers/ViewOptionsProvider';
 import { LoggableEvent } from '../utils/types';
 
-import { EventCardSkeleton } from './EventCards/EventCard';
 import LoggableEventCard from './EventCards/LoggableEventCard';
 
-type Props = {
-    offlineMode?: boolean;
-};
-
-const LoggableEventsList = ({ offlineMode = false }: Props) => {
+/**
+ * LoggableEventsList component for displaying a list of loggable events.
+ * It filters events based on the active event label.
+ */
+const LoggableEventsList = () => {
     const { activeEventLabelId } = useViewOptions();
-    const { dataIsLoaded, loggableEvents } = useLoggableEventsContext();
-
-    if (!dataIsLoaded && !offlineMode) {
-        return (
-            <>
-                <Grid item role="listitem">
-                    <EventCardSkeleton />
-                </Grid>
-                <Grid item role="listitem">
-                    <EventCardSkeleton />
-                </Grid>
-                <Grid item role="listitem">
-                    <EventCardSkeleton />
-                </Grid>
-            </>
-        );
-    }
+    const { loggableEvents } = useLoggableEventsContext();
 
     const filteredEvents: Array<LoggableEvent> = activeEventLabelId
         ? loggableEvents.filter(({ labelIds }) => labelIds && labelIds.includes(activeEventLabelId))

@@ -37,27 +37,6 @@ describe('LoggableEventsList', () => {
         );
     };
 
-    describe('Loading state', () => {
-        it.each([
-            ['shows skeletons when loading', false, false, 3],
-            ['shows no skeletons in offline mode', false, true, 0],
-            ['shows no skeletons when data loaded', true, false, 0]
-        ])('%s', (_, dataIsLoaded, offlineMode, expectedSkeletons) => {
-            const eventsValue = createMockLoggableEventsContextValue({
-                dataIsLoaded,
-                loggableEvents: []
-            });
-
-            renderWithProviders(<LoggableEventsList offlineMode={offlineMode} />, { eventsValue });
-
-            const skeletons = screen.queryAllByTestId('event-card-shimmer');
-            expect(skeletons).toHaveLength(expectedSkeletons);
-
-            const listItems = screen.queryAllByRole('listitem');
-            expect(listItems).toHaveLength(expectedSkeletons);
-        });
-    });
-
     describe('Rendering events', () => {
         it.each([
             ['no events', []],
@@ -140,37 +119,6 @@ describe('LoggableEventsList', () => {
 
             const listItems = screen.queryAllByRole('listitem');
             expect(listItems).toHaveLength(expectedCount);
-        });
-    });
-
-    describe('Offline mode', () => {
-        it.each([
-            [
-                'renders events when offline and not loaded',
-                true,
-                false,
-                [createMockLoggableEvent({ id: 'event-1', name: 'Offline Event' })],
-                0
-            ],
-            ['shows skeletons when not offline and not loaded', false, false, [], 3],
-            ['shows skeletons with undefined offline mode', undefined, false, [], 3]
-        ])('%s', (_, offlineMode, dataIsLoaded, loggableEvents, expectedSkeletons) => {
-            const eventsValue = createMockLoggableEventsContextValue({
-                dataIsLoaded,
-                loggableEvents
-            });
-
-            renderWithProviders(<LoggableEventsList offlineMode={offlineMode} />, { eventsValue });
-
-            const skeletons = screen.queryAllByTestId('event-card-shimmer');
-            expect(skeletons).toHaveLength(expectedSkeletons);
-
-            const listItems = screen.queryAllByRole('listitem');
-            expect(listItems).toHaveLength(expectedSkeletons + loggableEvents.length);
-
-            loggableEvents.forEach((event) => {
-                expect(screen.getByTestId(`event-card-${event.id}`)).toBeInTheDocument();
-            });
         });
     });
 });

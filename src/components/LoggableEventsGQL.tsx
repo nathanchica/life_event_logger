@@ -58,9 +58,7 @@ const LoggableEventsGQL = () => {
         }
     }, [dataIsFetched]);
 
-    if (error) throw new Error(`Error fetching loggable events: ${error.message}`);
-
-    return <LoggableEventsView />;
+    return <LoggableEventsView isLoading={loading} isShowingFetchError={Boolean(error)} />;
 };
 
 export default LoggableEventsGQL;
