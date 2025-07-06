@@ -5,6 +5,7 @@ import {
     createGetLoggableEventsForUserMock,
     createGetLoggableEventsForUserErrorMock
 } from '../../mocks/getLoggableEventsForUserMocks';
+import { createMockLoggableEventFragment } from '../../mocks/loggableEvent';
 import { createMockAuthContextValue, createMockLoggableEventsContextValue } from '../../mocks/providers';
 import { createMockUser } from '../../mocks/user';
 import { AuthContext } from '../../providers/AuthProvider';
@@ -65,12 +66,52 @@ describe('LoggableEventsGQL', () => {
 
     it('renders LoggableEventsView when data is loaded', async () => {
         const mockUser = createMockUser();
-        const apolloMocks = [createGetLoggableEventsForUserMock(mockUser.id)];
+        const apolloMocks = [
+            createGetLoggableEventsForUserMock(mockUser.id, [
+                createMockLoggableEventFragment(),
+                createMockLoggableEventFragment({ id: 'event-2', name: 'Test Event 2', labels: [] })
+            ])
+        ];
 
         renderWithProviders(<LoggableEventsGQL />, { apolloMocks });
 
+        expect(await screen.findByTestId('loggable-events-view')).toBeInTheDocument();
+
         await waitFor(() => {
-            expect(screen.getByTestId('loggable-events-view')).toBeInTheDocument();
+            expect(mockLoadLoggableEvents).toHaveBeenCalledWith([
+                expect.objectContaining({
+                    id: 'event-1',
+                    name: 'Test Event 1',
+                    timestamps: [new Date('2023-01-01T00:00:00Z')],
+                    createdAt: new Date('2023-01-01T00:00:00Z'),
+                    warningThresholdInDays: 7,
+                    labelIds: ['label-1', 'label-2'],
+                    isSynced: true
+                }),
+                expect.objectContaining({
+                    id: 'event-2',
+                    name: 'Test Event 2',
+                    timestamps: [new Date('2023-01-01T00:00:00Z')],
+                    createdAt: new Date('2023-01-01T00:00:00Z'),
+                    warningThresholdInDays: 7,
+                    labelIds: [],
+                    isSynced: true
+                })
+            ]);
+            expect(mockLoadEventLabels).toHaveBeenCalledWith([
+                expect.objectContaining({
+                    id: 'label-1',
+                    name: 'Work',
+                    createdAt: new Date('2023-01-01T00:00:00Z'),
+                    isSynced: true
+                }),
+                expect.objectContaining({
+                    id: 'label-2',
+                    name: 'Personal',
+                    createdAt: new Date('2023-01-01T00:00:00Z'),
+                    isSynced: true
+                })
+            ]);
         });
     });
 
@@ -81,9 +122,7 @@ describe('LoggableEventsGQL', () => {
         renderWithProviders(<LoggableEventsGQL />, { apolloMocks });
 
         // Wait for the component to render without errors (this validates the basic flow)
-        await waitFor(() => {
-            expect(screen.getByTestId('loggable-events-view')).toBeInTheDocument();
-        });
+        expect(await screen.findByTestId('loggable-events-view')).toBeInTheDocument();
     });
 
     it('handles GraphQL query errors', async () => {
@@ -93,9 +132,7 @@ describe('LoggableEventsGQL', () => {
         renderWithProviders(<LoggableEventsGQL />, { apolloMocks });
 
         // Wait for the error to be passed to LoggableEventsView
-        await waitFor(() => {
-            expect(screen.getByText('Error')).toBeInTheDocument();
-        });
+        expect(await screen.findByText('Error')).toBeInTheDocument();
     });
 
     it('renders loading state initially', async () => {
@@ -105,9 +142,7 @@ describe('LoggableEventsGQL', () => {
         renderWithProviders(<LoggableEventsGQL />, { apolloMocks });
 
         // Component should render (validates loading state handling)
-        await waitFor(() => {
-            expect(screen.getByTestId('loggable-events-view')).toBeInTheDocument();
-        });
+        expect(await screen.findByTestId('loggable-events-view')).toBeInTheDocument();
     });
 
     it('handles empty data arrays', async () => {
@@ -115,6 +150,8 @@ describe('LoggableEventsGQL', () => {
         const apolloMocks = [createGetLoggableEventsForUserMock(mockUser.id, [], [])];
 
         renderWithProviders(<LoggableEventsGQL />, { apolloMocks });
+
+        expect(await screen.findByTestId('loggable-events-view')).toBeInTheDocument();
 
         await waitFor(() => {
             expect(mockLoadLoggableEvents).toHaveBeenCalledWith([]);
@@ -132,8 +169,6 @@ describe('LoggableEventsGQL', () => {
             apolloMocks
         });
 
-        await waitFor(() => {
-            expect(screen.getByTestId('loggable-events-view')).toBeInTheDocument();
-        });
+        expect(await screen.findByTestId('loggable-events-view')).toBeInTheDocument();
     });
 });

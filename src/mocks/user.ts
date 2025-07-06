@@ -14,6 +14,7 @@ export const createMockUser = (overrides: Partial<User> = {}): User => {
 };
 
 const mockUserFragment: UserFragment = {
+    __typename: 'User',
     id: 'user-1',
     email: 'test@example.com',
     name: 'Test User'

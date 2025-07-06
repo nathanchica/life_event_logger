@@ -40,6 +40,8 @@ export interface LoggableEvent {
  */
 
 export type UserFragment = {
+    /** GraphQL typename */
+    __typename: string;
     /** Unique id of the user */
     id: string;
     /** Email of the user */
@@ -49,6 +51,8 @@ export type UserFragment = {
 };
 
 export type EventLabelFragment = {
+    /** GraphQL typename */
+    __typename: string;
     /** id of the event label */
     id: string;
     /** Displayable name of the event label */
@@ -58,6 +62,8 @@ export type EventLabelFragment = {
 };
 
 export type LoggableEventFragment = {
+    /** GraphQL typename */
+    __typename: string;
     /** id of the event */
     id: string;
     /** Name of the event */

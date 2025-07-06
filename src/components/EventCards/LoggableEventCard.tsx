@@ -51,7 +51,7 @@ export const createLoggableEventFromFragment = ({
         timestamps: timestamps.map((timestampIsoString) => new Date(timestampIsoString)),
         createdAt: new Date(createdAt),
         warningThresholdInDays,
-        labelIds: labels ? labels.map(({ id }) => id) : [],
+        labelIds: labels.map(({ id }) => id),
         isSynced: true
     };
 };

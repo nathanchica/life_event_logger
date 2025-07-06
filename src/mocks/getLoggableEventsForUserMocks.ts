@@ -24,6 +24,7 @@ export const createGetLoggableEventsForUserMock = (
         result: {
             data: {
                 user: {
+                    __typename: 'User',
                     loggableEvents,
                     eventLabels
                 }

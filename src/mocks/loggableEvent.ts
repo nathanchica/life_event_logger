@@ -23,6 +23,7 @@ export const createMockLoggableEvent = (overrides: Partial<LoggableEvent> = {}):
 };
 
 const mockLoggableEventFragment: LoggableEventFragment = {
+    __typename: 'LoggableEvent',
     id: 'event-1',
     name: 'Test Event 1',
     timestamps: ['2023-01-01T00:00:00Z'],

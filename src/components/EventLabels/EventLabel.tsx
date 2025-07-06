@@ -20,6 +20,7 @@ import { validateEventLabelName, MAX_LABEL_LENGTH } from '../../utils/validation
 
 const EVENT_LABEL_FRAGMENT = gql`
     fragment EventLabelFragment on EventLabel {
+        id
         name
         createdAt
     }
