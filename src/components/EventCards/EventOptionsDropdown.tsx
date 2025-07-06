@@ -6,13 +6,13 @@ import { css } from '@emotion/react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-import blue from '@mui/material/colors/blue';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
+import blue from '@mui/material/colors/blue';
 
 const DropdownItem = ({ name, icon, onClick }: { name: string; icon: ReactNode; onClick: () => void }) => (
     <ListItem disablePadding>

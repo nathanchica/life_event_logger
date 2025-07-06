@@ -8,8 +8,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
-import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
 import { GoogleLogin, useGoogleOneTapLogin, CredentialResponse } from '@react-oauth/google';
 
 import { useAuth } from '../providers/AuthProvider';

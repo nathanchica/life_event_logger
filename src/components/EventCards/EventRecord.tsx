@@ -4,10 +4,10 @@ import { useState } from 'react';
 
 import { css } from '@emotion/react';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { grey } from '@mui/material/colors';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import { grey } from '@mui/material/colors';
 import invariant from 'tiny-invariant';
 
 import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';

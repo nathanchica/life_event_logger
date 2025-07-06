@@ -4,10 +4,10 @@ import { ReactNode, ComponentProps } from 'react';
 
 import { css } from '@emotion/react';
 import Card from '@mui/material/Card';
-import amber from '@mui/material/colors/amber';
-import grey from '@mui/material/colors/grey';
 import Grow from '@mui/material/Grow';
 import Skeleton from '@mui/material/Skeleton';
+import amber from '@mui/material/colors/amber';
+import grey from '@mui/material/colors/grey';
 import { useTheme } from '@mui/material/styles';
 
 export const CARD_WIDTH = '400px';

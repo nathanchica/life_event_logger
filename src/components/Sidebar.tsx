@@ -11,12 +11,12 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Collapse from '@mui/material/Collapse';
-import blueGrey from '@mui/material/colors/blueGrey';
-import green from '@mui/material/colors/green';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import blueGrey from '@mui/material/colors/blueGrey';
+import green from '@mui/material/colors/green';
 
 import { useViewOptions } from '../providers/ViewOptionsProvider';
 
