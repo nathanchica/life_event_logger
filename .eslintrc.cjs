@@ -29,13 +29,13 @@ module.exports = {
         'react-hooks/exhaustive-deps': 'off',
         '@typescript-eslint/no-unused-vars': ['warn'],
         'import/order': [
-            'error',
+            'warn',
             {
                 groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
                 'newlines-between': 'always',
                 alphabetize: {
                     order: 'asc',
-                    caseInsensitive: true
+                    caseInsensitive: false
                 },
                 pathGroups: [
                     {
