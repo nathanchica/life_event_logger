@@ -139,8 +139,6 @@ const LoggableEventsProvider = ({ children }: Props) => {
     };
 
     const addTimestampToEvent = (eventId: string, dateToAdd: Date) => {
-        // const newEventDateTimeISOString = dateToAdd.toISOString();
-
         setLoggableEvents((prevData) =>
             prevData.map((eventData: LoggableEvent) => {
                 if (eventData.id !== eventId) {
