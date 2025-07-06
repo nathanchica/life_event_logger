@@ -2,12 +2,12 @@ import { useMemo } from 'react';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import { useAuth } from '../providers/AuthProvider';
-import { useViewOptions } from '../providers/ViewOptionsProvider';
-
 import LoggableEventsGQL from './LoggableEventsGQL';
 import LoggableEventsView from './LoggableEventsView';
 import LoginView from './LoginView';
+
+import { useAuth } from '../providers/AuthProvider';
+import { useViewOptions } from '../providers/ViewOptionsProvider';
 
 /**
  * Event Logger Page

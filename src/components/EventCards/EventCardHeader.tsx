@@ -7,9 +7,9 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
-import { useToggle } from '../../utils/useToggle';
-
 import EventOptionsDropdown from './EventOptionsDropdown';
+
+import { useToggle } from '../../utils/useToggle';
 
 type Props = {
     eventId: string;

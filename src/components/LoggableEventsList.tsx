@@ -1,10 +1,10 @@
 import Grid from '@mui/material/Grid';
 
+import LoggableEventCard from './EventCards/LoggableEventCard';
+
 import { useLoggableEventsContext } from '../providers/LoggableEventsProvider';
 import { useViewOptions } from '../providers/ViewOptionsProvider';
 import { LoggableEvent } from '../utils/types';
-
-import LoggableEventCard from './EventCards/LoggableEventCard';
 
 /**
  * LoggableEventsList component for displaying a list of loggable events.

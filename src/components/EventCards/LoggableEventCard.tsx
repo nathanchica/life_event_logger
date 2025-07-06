@@ -9,18 +9,18 @@ import Typography from '@mui/material/Typography';
 import { visuallyHidden } from '@mui/utils';
 import invariant from 'tiny-invariant';
 
-import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
-import { getDaysSinceLastEventRecord } from '../../utils/time';
-import { LoggableEvent, LoggableEventFragment } from '../../utils/types';
-import { useToggle } from '../../utils/useToggle';
-import EventLabel from '../EventLabels/EventLabel';
-
 import EditEventCard from './EditEventCard';
 import EventCard from './EventCard';
 import EventCardHeader from './EventCardHeader';
 import EventDatepicker from './EventDatepicker';
 import EventRecord from './EventRecord';
 import LastEventDisplay from './LastEventDisplay';
+
+import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
+import { getDaysSinceLastEventRecord } from '../../utils/time';
+import { LoggableEvent, LoggableEventFragment } from '../../utils/types';
+import { useToggle } from '../../utils/useToggle';
+import EventLabel from '../EventLabels/EventLabel';
 
 const MAX_RECORDS_TO_DISPLAY = 5;
 

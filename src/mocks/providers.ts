@@ -1,10 +1,10 @@
-import { AuthContextType } from '../providers/AuthProvider';
-import { LoggableEventsContextType } from '../providers/LoggableEventsProvider';
-import { ViewOptionsContextType } from '../providers/ViewOptionsProvider';
-
 import { createMockEventLabel } from './eventLabels';
 import { createMockLoggableEvent } from './loggableEvent';
 import { createMockUser } from './user';
+
+import { AuthContextType } from '../providers/AuthProvider';
+import { LoggableEventsContextType } from '../providers/LoggableEventsProvider';
+import { ViewOptionsContextType } from '../providers/ViewOptionsProvider';
 
 export const createMockAuthContextValue = (overrides: Partial<AuthContextType> = {}): AuthContextType => {
     return {

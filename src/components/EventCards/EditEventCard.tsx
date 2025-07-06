@@ -18,13 +18,13 @@ import blueGrey from '@mui/material/colors/blueGrey';
 import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 
-import { useLoggableEventsContext, EVENT_DEFAULT_VALUES } from '../../providers/LoggableEventsProvider';
-import { useViewOptions } from '../../providers/ViewOptionsProvider';
-import { EventLabel } from '../../utils/types';
-
 import EventCard from './EventCard';
 import EventLabelAutocomplete from './EventLabelAutocomplete';
 import WarningThresholdForm from './WarningThresholdForm';
+
+import { useLoggableEventsContext, EVENT_DEFAULT_VALUES } from '../../providers/LoggableEventsProvider';
+import { useViewOptions } from '../../providers/ViewOptionsProvider';
+import { EventLabel } from '../../utils/types';
 
 export const MAX_LENGTH = 25;
 

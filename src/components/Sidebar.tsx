@@ -18,9 +18,9 @@ import Typography from '@mui/material/Typography';
 import blueGrey from '@mui/material/colors/blueGrey';
 import green from '@mui/material/colors/green';
 
-import { useViewOptions } from '../providers/ViewOptionsProvider';
-
 import EventLabelList from './EventLabels/EventLabelList';
+
+import { useViewOptions } from '../providers/ViewOptionsProvider';
 
 type Props = {
     isCollapsed: boolean;

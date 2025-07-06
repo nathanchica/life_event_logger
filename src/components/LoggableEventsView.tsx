@@ -12,12 +12,12 @@ import blueGrey from '@mui/material/colors/blueGrey';
 import green from '@mui/material/colors/green';
 import { useTheme } from '@mui/material/styles';
 
-import { useToggle } from '../utils/useToggle';
-
 import CreateEventCard from './EventCards/CreateEventCard';
 import { EventCardSkeleton } from './EventCards/EventCard';
 import LoggableEventsList from './LoggableEventsList';
 import Sidebar from './Sidebar';
+
+import { useToggle } from '../utils/useToggle';
 
 type Props = {
     isLoading?: boolean;
