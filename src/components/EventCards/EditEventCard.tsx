@@ -25,8 +25,7 @@ import WarningThresholdForm from './WarningThresholdForm';
 import { useLoggableEventsContext, EVENT_DEFAULT_VALUES } from '../../providers/LoggableEventsProvider';
 import { useViewOptions } from '../../providers/ViewOptionsProvider';
 import { EventLabel } from '../../utils/types';
-
-export const MAX_LENGTH = 25;
+import { isEventNameValid, getEventNameValidationErrorText } from '../../utils/validation';
 
 type Props = {
     onDismiss: () => void;
@@ -76,26 +75,16 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
     const [eventNameInputValue, setEventNameInputValue] = useState(eventToEdit.name);
     const resetEventNameInputValue = () => setEventNameInputValue(EVENT_DEFAULT_VALUES.name);
 
-    const eventNameIsTooLong = eventNameInputValue.length > MAX_LENGTH;
-    const eventNameAlreadyExists = Boolean(
-        loggableEvents.find(({ id, name }) => id !== eventIdToEdit && name === eventNameInputValue)
-    );
-    const eventNameIsValid =
-        eventNameInputValue.length > 0 && eventNameInputValue.length <= MAX_LENGTH && !eventNameAlreadyExists;
+    const eventNameIsValid = isEventNameValid(eventNameInputValue, loggableEvents, eventIdToEdit);
 
     /** Event name validation error display */
-    let textFieldErrorProps: { error?: boolean; helperText?: string } = {};
-    if (eventNameIsTooLong) {
-        textFieldErrorProps = {
-            error: true,
-            helperText: 'Event name is too long'
-        };
-    } else if (eventNameAlreadyExists) {
-        textFieldErrorProps = {
-            error: true,
-            helperText: 'That event name already exists'
-        };
-    }
+    const validationErrorText = getEventNameValidationErrorText(eventNameInputValue, loggableEvents, eventIdToEdit);
+    const textFieldErrorProps: { error?: boolean; helperText?: string } = validationErrorText
+        ? {
+              error: true,
+              helperText: validationErrorText
+          }
+        : {};
 
     /**
      * Warning threshold.

@@ -7,7 +7,8 @@ import { createMockLoggableEvent } from '../../../mocks/loggableEvent';
 import { createMockLoggableEventsContextValue, createMockViewOptionsContextValue } from '../../../mocks/providers';
 import { LoggableEventsContext } from '../../../providers/LoggableEventsProvider';
 import { ViewOptionsContext } from '../../../providers/ViewOptionsProvider';
-import EditEventCard, { MAX_LENGTH } from '../EditEventCard';
+import { MAX_EVENT_NAME_LENGTH } from '../../../utils/validation';
+import EditEventCard from '../EditEventCard';
 
 describe('EditEventCard', () => {
     const mockOnDismiss = jest.fn();
@@ -91,7 +92,7 @@ describe('EditEventCard', () => {
 
     describe('Event name validation', () => {
         it.each([
-            ['too long', 'a'.repeat(MAX_LENGTH + 1), 'Event name is too long', null],
+            ['too long', 'a'.repeat(MAX_EVENT_NAME_LENGTH + 1), 'Event name is too long', null],
             ['duplicate', 'Existing Event', 'That event name already exists', mockEvent]
         ])('shows error and disables button for name %s', async (_, inputValue, expectedError, existingEvent) => {
             renderWithProviders(<EditEventCard onDismiss={mockOnDismiss} />, {
