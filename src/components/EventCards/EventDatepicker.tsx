@@ -49,13 +49,19 @@ const EventDatepicker = ({ eventId, isShowing, disabledDates, onAccept }: Props)
 
     const handleDatepickerAccept = (newDate: Moment | null) => {
         if (newDate) {
-            setInputValue(getDefaultDate);
+            setInputValue(newDate);
         }
     };
 
     const handleConfirm = () => {
         if (inputValueIsValid) {
             onAccept(inputValue!.toDate());
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleConfirm();
         }
     };
 
@@ -89,11 +95,11 @@ const EventDatepicker = ({ eventId, isShowing, disabledDates, onAccept }: Props)
                             textField: {
                                 size: 'small',
                                 helperText: 'Pick a date to log an event for',
-                                'aria-describedby': `datepicker-help-${eventId}`
+                                'aria-describedby': `datepicker-help-${eventId}`,
+                                onKeyDown: handleKeyDown
                             }
                         }}
                         autoFocus
-                        closeOnSelect={false}
                         aria-label="Event datepicker"
                         aria-describedby={`datepicker-help-${eventId}`}
                     />
