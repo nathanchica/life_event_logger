@@ -1,4 +1,4 @@
-import { ApolloClient, ApolloLink, Observable, createHttpLink, gql } from '@apollo/client';
+import { ApolloClient, ApolloLink, Observable, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { OperationDefinitionNode } from 'graphql';
 
@@ -20,7 +20,8 @@ const readLoggableEventFromCache = (eventId: string): LoggableEventFragment | nu
             id: `LoggableEvent:${eventId}`,
             fragment: LOGGABLE_EVENT_FRAGMENT
         });
-    } catch (error) {
+    } catch {
+        // Event not found in cache or invalid eventId - return null so caller can handle missing data
         return null;
     }
 };
@@ -34,7 +35,8 @@ const readEventLabelFromCache = (labelId: string): EventLabelFragment | null => 
             id: `EventLabel:${labelId}`,
             fragment: EVENT_LABEL_FRAGMENT
         });
-    } catch (error) {
+    } catch {
+        // Label not found in cache or invalid labelId - return null so caller can handle missing data
         return null;
     }
 };
@@ -57,18 +59,19 @@ const readEventLabelFromCache = (labelId: string): EventLabelFragment | null => 
  *
  * Used when the app is in offline mode or when running tests.
  */
-const offlineMockLink = new ApolloLink((operation, forward) => {
+const offlineMockLink = new ApolloLink((operation) => {
     const definition = operation.query.definitions[0] as OperationDefinitionNode;
 
     // Handle mutations with mock responses
     if (definition.operation === 'mutation') {
         return new Observable((observer) => {
             const { operationName, variables } = operation;
+            const inputVariables = variables.input;
 
             // Mock CreateLoggableEvent mutation response
             if (operationName === 'CreateLoggableEvent') {
-                const newId = variables.input?.id || `server-${Date.now()}`;
-                const labelIds = variables.input?.labelIds || [];
+                const newId = inputVariables?.id || `server-${Date.now()}`;
+                const labelIds = inputVariables?.labelIds || [];
 
                 // Read labels from cache if IDs provided
                 const labels = labelIds.map((id: string) => readEventLabelFromCache(id)).filter(Boolean);
@@ -78,9 +81,9 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
                         createLoggableEvent: {
                             __typename: 'LoggableEvent',
                             id: newId,
-                            name: variables.input?.name || '',
+                            name: inputVariables?.name || '',
                             timestamps: [],
-                            warningThresholdInDays: variables.input?.warningThresholdInDays || 0,
+                            warningThresholdInDays: inputVariables?.warningThresholdInDays || 0,
                             createdAt: new Date().toISOString(),
                             labels
                         }
@@ -89,8 +92,8 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
             }
             // Mock UpdateLoggableEvent mutation response
             else if (operationName === 'UpdateLoggableEvent') {
-                const existingEvent = readLoggableEventFromCache(variables.id);
-                const labelIds = variables.input?.labelIds;
+                const existingEvent = readLoggableEventFromCache(inputVariables?.id);
+                const labelIds = inputVariables?.labelIds;
 
                 // If labelIds provided, read them from cache; otherwise preserve existing
                 const labels = labelIds
@@ -101,11 +104,11 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
                     data: {
                         updateLoggableEvent: {
                             __typename: 'LoggableEvent',
-                            id: variables.id,
-                            name: variables.input?.name ?? existingEvent?.name ?? '',
+                            id: inputVariables?.id,
+                            name: inputVariables?.name ?? existingEvent?.name ?? '',
                             timestamps: existingEvent?.timestamps || [],
                             warningThresholdInDays:
-                                variables.input?.warningThresholdInDays ?? existingEvent?.warningThresholdInDays ?? 0,
+                                inputVariables?.warningThresholdInDays ?? existingEvent?.warningThresholdInDays ?? 0,
                             createdAt: existingEvent?.createdAt || new Date().toISOString(),
                             labels
                         }
@@ -118,8 +121,8 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
                     data: {
                         createEventLabel: {
                             __typename: 'EventLabel',
-                            id: variables.input?.id || `server-${Date.now()}`,
-                            name: variables.input?.name || '',
+                            id: inputVariables?.id || `server-${Date.now()}`,
+                            name: inputVariables?.name || '',
                             createdAt: new Date().toISOString()
                         }
                     }
@@ -127,14 +130,14 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
             }
             // Mock UpdateEventLabel mutation response
             else if (operationName === 'UpdateEventLabel') {
-                const existingLabel = readEventLabelFromCache(variables.id);
+                const existingLabel = readEventLabelFromCache(inputVariables?.id);
 
                 observer.next({
                     data: {
                         updateEventLabel: {
                             __typename: 'EventLabel',
-                            id: variables.id,
-                            name: variables.input?.name ?? existingLabel?.name ?? '',
+                            id: inputVariables?.id,
+                            name: inputVariables?.name ?? existingLabel?.name ?? '',
                             createdAt: existingLabel?.createdAt || new Date().toISOString()
                         }
                     }
@@ -142,15 +145,15 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
             }
             // Mock AddTimestampToEvent mutation response
             else if (operationName === 'AddTimestampToEvent') {
-                const existingEvent = readLoggableEventFromCache(variables.eventId);
+                const existingEvent = readLoggableEventFromCache(inputVariables?.eventId);
 
                 observer.next({
                     data: {
                         addTimestampToEvent: {
                             __typename: 'LoggableEvent',
-                            id: variables.eventId,
+                            id: inputVariables?.eventId,
                             name: existingEvent?.name || '',
-                            timestamps: [...(existingEvent?.timestamps || []), variables.timestamp],
+                            timestamps: [...(existingEvent?.timestamps || []), inputVariables?.timestamp],
                             warningThresholdInDays: existingEvent?.warningThresholdInDays || 0,
                             createdAt: existingEvent?.createdAt || new Date().toISOString(),
                             labels: existingEvent?.labels || []
@@ -160,15 +163,15 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
             }
             // Mock RemoveTimestampFromEvent mutation response
             else if (operationName === 'RemoveTimestampFromEvent') {
-                const existingEvent = readLoggableEventFromCache(variables.eventId);
+                const existingEvent = readLoggableEventFromCache(inputVariables?.eventId);
 
                 observer.next({
                     data: {
                         removeTimestampFromEvent: {
                             __typename: 'LoggableEvent',
-                            id: variables.eventId,
+                            id: inputVariables?.eventId,
                             name: existingEvent?.name || '',
-                            timestamps: existingEvent?.timestamps?.filter((t) => t !== variables.timestamp) || [],
+                            timestamps: existingEvent?.timestamps?.filter((t) => t !== inputVariables?.timestamp) || [],
                             warningThresholdInDays: existingEvent?.warningThresholdInDays || 0,
                             createdAt: existingEvent?.createdAt || new Date().toISOString(),
                             labels: existingEvent?.labels || []
@@ -182,7 +185,7 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
                     data: {
                         deleteLoggableEvent: {
                             __typename: 'LoggableEvent',
-                            id: variables.id
+                            id: inputVariables?.id
                         }
                     }
                 });
@@ -193,7 +196,7 @@ const offlineMockLink = new ApolloLink((operation, forward) => {
                     data: {
                         deleteEventLabel: {
                             __typename: 'EventLabel',
-                            id: variables.id
+                            id: inputVariables?.id
                         }
                     }
                 });
@@ -249,10 +252,10 @@ export const createApolloClient = async (isOfflineMode = false) => {
         // Suppress cache-related warnings during development for cleaner debugging
         defaultOptions: {
             watchQuery: {
-                errorPolicy: 'ignore'
+                errorPolicy: 'all'
             },
             query: {
-                errorPolicy: 'ignore'
+                errorPolicy: 'all'
             }
         }
     });
@@ -270,7 +273,7 @@ export const createApolloClient = async (isOfflineMode = false) => {
             if (existingData && typeof existingData === 'object' && 'user' in existingData && existingData.user) {
                 return apolloClient;
             }
-        } catch (error) {
+        } catch {
             // User doesn't exist or query fails, we need to initialize
         }
 
