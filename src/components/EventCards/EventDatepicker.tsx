@@ -6,7 +6,6 @@ import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import { visuallyHidden } from '@mui/utils';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { Moment } from 'moment';
@@ -20,22 +19,22 @@ type Props = {
 };
 
 const EventDatepicker = ({ eventId, isShowing, disabledDates, onAccept, onClose }: Props) => {
-    const [inputValue, setInputValue] = useState<Date | undefined>(undefined);
+    const [inputValue, setInputValue] = useState<Moment | null>(null);
 
     const handleInputChange = (newDate: Moment | null) => {
-        // guaranteed non-null since MobileDatepicker's clearable is false
-        setInputValue((newDate as Moment).toDate());
+        setInputValue(newDate);
     };
 
     const handleAccept = (newDate: Moment | null) => {
-        // guaranteed non-null since MobileDatepicker's clearable is false
-        onAccept((newDate as Moment).toDate());
-        setInputValue(undefined);
+        if (newDate) {
+            onAccept(newDate.toDate());
+        }
+        setInputValue(null);
     };
 
     const handleClose = () => {
         onClose();
-        setInputValue(undefined);
+        setInputValue(null);
     };
 
     return (
@@ -51,22 +50,21 @@ const EventDatepicker = ({ eventId, isShowing, disabledDates, onAccept, onClose 
                 >
                     <MobileDatePicker
                         label="Event date"
-                        inputFormat="MM/D/yyyy"
+                        format="MM/D/yyyy"
                         value={inputValue}
                         onChange={handleInputChange}
                         shouldDisableDate={(date) =>
                             disabledDates.some((record: Date) => record.toDateString() === date.toDate().toDateString())
                         }
-                        renderInput={(params) => (
-                            <TextField
-                                size="small"
-                                helperText="Pick a date to log an event for"
-                                aria-describedby={`datepicker-help-${eventId}`}
-                                {...params}
-                            />
-                        )}
                         onAccept={handleAccept}
                         onClose={handleClose}
+                        slotProps={{
+                            textField: {
+                                size: 'small',
+                                helperText: 'Pick a date to log an event for',
+                                'aria-describedby': `datepicker-help-${eventId}`
+                            }
+                        }}
                     />
                     <Box id={`datepicker-help-${eventId}`} sx={visuallyHidden}>
                         Dates already logged are disabled
