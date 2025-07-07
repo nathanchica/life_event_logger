@@ -14,9 +14,14 @@ import { GoogleLogin, useGoogleOneTapLogin, CredentialResponse } from '@react-oa
 
 import { useAuth } from '../providers/AuthProvider';
 
+// Types for mutation inputs
+export interface LoginInput {
+    googleToken: string;
+}
+
 export const LOGIN_MUTATION = gql`
-    mutation Login($googleToken: String!) {
-        login(googleToken: $googleToken) {
+    mutation Login($input: LoginInput!) {
+        login(input: $input) {
             token
             user {
                 id
@@ -44,7 +49,9 @@ const LoginView = () => {
         try {
             const { data } = await loginMutation({
                 variables: {
-                    googleToken: credentialResponse.credential
+                    input: {
+                        googleToken: credentialResponse.credential
+                    }
                 }
             });
 

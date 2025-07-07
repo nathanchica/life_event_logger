@@ -6,12 +6,17 @@ import { useAuth } from '../providers/AuthProvider';
 import { EventLabel } from '../utils/types';
 
 // Types for mutation inputs
-interface CreateEventLabelInput {
+export interface CreateEventLabelInput {
     name: string;
 }
 
-interface UpdateEventLabelInput {
+export interface UpdateEventLabelInput {
+    id: string;
     name: string;
+}
+
+export interface DeleteEventLabelInput {
+    id: string;
 }
 
 // Import the existing fragment
@@ -28,8 +33,8 @@ const CREATE_EVENT_LABEL = gql`
 `;
 
 const UPDATE_EVENT_LABEL = gql`
-    mutation UpdateEventLabel($id: String!, $input: UpdateEventLabelInput!) {
-        updateEventLabel(id: $id, input: $input) {
+    mutation UpdateEventLabel($input: UpdateEventLabelInput!) {
+        updateEventLabel(input: $input) {
             ...EventLabelFragment
         }
     }
@@ -37,8 +42,8 @@ const UPDATE_EVENT_LABEL = gql`
 `;
 
 const DELETE_EVENT_LABEL = gql`
-    mutation DeleteEventLabel($id: String!) {
-        deleteEventLabel(id: $id) {
+    mutation DeleteEventLabel($input: DeleteEventLabelInput!) {
+        deleteEventLabel(input: $input) {
             id
         }
     }
@@ -83,7 +88,7 @@ export const useEventLabels = () => {
         optimisticResponse: (variables) => ({
             updateEventLabel: {
                 __typename: 'EventLabel',
-                id: variables.id,
+                id: variables.input.id,
                 name: variables.input.name,
                 createdAt: new Date().toISOString() // This will be overwritten by cache merge
             }
@@ -94,7 +99,7 @@ export const useEventLabels = () => {
         optimisticResponse: (variables) => ({
             deleteEventLabel: {
                 __typename: 'EventLabel',
-                id: variables.id
+                id: variables.input.id
             }
         }),
         update: (cache, { data }) => {
@@ -137,10 +142,13 @@ export const useEventLabels = () => {
         }
     };
 
-    const updateEventLabel = async (id: string, input: UpdateEventLabelInput): Promise<EventLabel | null> => {
+    const updateEventLabel = async (
+        id: string,
+        input: Omit<UpdateEventLabelInput, 'id'>
+    ): Promise<EventLabel | null> => {
         try {
             const result = await updateEventLabelMutation({
-                variables: { id, input }
+                variables: { input: { id, ...input } }
             });
             return result.data?.updateEventLabel || null;
         } catch (error) {
@@ -154,7 +162,7 @@ export const useEventLabels = () => {
     const deleteEventLabel = async (id: string): Promise<boolean> => {
         try {
             await deleteEventLabelMutation({
-                variables: { id }
+                variables: { input: { id } }
             });
             return true;
         } catch (error) {

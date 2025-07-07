@@ -5,24 +5,29 @@ import { useAuth } from '../providers/AuthProvider';
 import { LoggableEvent } from '../utils/types';
 
 // Types for mutation inputs
-interface CreateLoggableEventInput {
+export interface CreateLoggableEventInput {
     name: string;
     warningThresholdInDays?: number;
     labelIds?: string[];
 }
 
-interface UpdateLoggableEventInput {
+export interface UpdateLoggableEventInput {
+    id: string;
     name: string;
     warningThresholdInDays?: number;
     labelIds?: string[];
 }
 
-interface AddTimestampInput {
+export interface DeleteLoggableEventInput {
+    id: string;
+}
+
+export interface AddTimestampInput {
     eventId: string;
     timestamp: string; // ISO string
 }
 
-interface RemoveTimestampInput {
+export interface RemoveTimestampInput {
     eventId: string;
     timestamp: string; // ISO string
 }
@@ -54,8 +59,8 @@ const CREATE_LOGGABLE_EVENT = gql`
 `;
 
 const UPDATE_LOGGABLE_EVENT = gql`
-    mutation UpdateLoggableEvent($id: String!, $input: UpdateLoggableEventInput!) {
-        updateLoggableEvent(id: $id, input: $input) {
+    mutation UpdateLoggableEvent($input: UpdateLoggableEventInput!) {
+        updateLoggableEvent(input: $input) {
             id
             ...LoggableEventFragment
         }
@@ -64,16 +69,16 @@ const UPDATE_LOGGABLE_EVENT = gql`
 `;
 
 const DELETE_LOGGABLE_EVENT = gql`
-    mutation DeleteLoggableEvent($id: String!) {
-        deleteLoggableEvent(id: $id) {
+    mutation DeleteLoggableEvent($input: DeleteLoggableEventInput!) {
+        deleteLoggableEvent(input: $input) {
             id
         }
     }
 `;
 
 const ADD_TIMESTAMP_TO_EVENT = gql`
-    mutation AddTimestampToEvent($eventId: String!, $timestamp: String!) {
-        addTimestampToEvent(eventId: $eventId, timestamp: $timestamp) {
+    mutation AddTimestampToEvent($input: AddTimestampInput!) {
+        addTimestampToEvent(input: $input) {
             id
             ...LoggableEventFragment
         }
@@ -82,8 +87,8 @@ const ADD_TIMESTAMP_TO_EVENT = gql`
 `;
 
 const REMOVE_TIMESTAMP_FROM_EVENT = gql`
-    mutation RemoveTimestampFromEvent($eventId: String!, $timestamp: String!) {
-        removeTimestampFromEvent(eventId: $eventId, timestamp: $timestamp) {
+    mutation RemoveTimestampFromEvent($input: RemoveTimestampInput!) {
+        removeTimestampFromEvent(input: $input) {
             id
             ...LoggableEventFragment
         }
@@ -133,7 +138,7 @@ export const useLoggableEvents = () => {
         optimisticResponse: (variables) => ({
             updateLoggableEvent: {
                 __typename: 'LoggableEvent',
-                id: variables.id,
+                id: variables.input.id,
                 name: variables.input.name,
                 timestamps: [],
                 warningThresholdInDays: variables.input.warningThresholdInDays || 0,
@@ -147,7 +152,7 @@ export const useLoggableEvents = () => {
         optimisticResponse: (variables) => ({
             deleteLoggableEvent: {
                 __typename: 'LoggableEvent',
-                id: variables.id
+                id: variables.input.id
             }
         }),
         update: (cache, { data }) => {
@@ -174,9 +179,9 @@ export const useLoggableEvents = () => {
         optimisticResponse: (variables) => ({
             addTimestampToEvent: {
                 __typename: 'LoggableEvent',
-                id: variables.eventId,
+                id: variables.input.eventId,
                 // We can't easily get the current timestamps here, but Apollo will merge this
-                timestamps: [variables.timestamp],
+                timestamps: [variables.input.timestamp],
                 name: '',
                 warningThresholdInDays: 0,
                 createdAt: new Date().toISOString(),
@@ -213,10 +218,13 @@ export const useLoggableEvents = () => {
         }
     };
 
-    const updateLoggableEvent = async (id: string, input: UpdateLoggableEventInput): Promise<LoggableEvent | null> => {
+    const updateLoggableEvent = async (
+        id: string,
+        input: Omit<UpdateLoggableEventInput, 'id'>
+    ): Promise<LoggableEvent | null> => {
         try {
             const result = await updateLoggableEventMutation({
-                variables: { id, input }
+                variables: { input: { id, ...input } }
             });
             return result.data?.updateLoggableEvent || null;
         } catch (error) {
@@ -230,7 +238,7 @@ export const useLoggableEvents = () => {
     const deleteLoggableEvent = async (id: string): Promise<boolean> => {
         try {
             await deleteLoggableEventMutation({
-                variables: { id }
+                variables: { input: { id } }
             });
             return true;
         } catch (error) {
@@ -245,8 +253,10 @@ export const useLoggableEvents = () => {
         try {
             const result = await addTimestampMutation({
                 variables: {
-                    eventId,
-                    timestamp: timestamp.toISOString()
+                    input: {
+                        eventId,
+                        timestamp: timestamp.toISOString()
+                    }
                 }
             });
             return result.data?.addTimestampToEvent || null;
@@ -262,8 +272,10 @@ export const useLoggableEvents = () => {
         try {
             const result = await removeTimestampMutation({
                 variables: {
-                    eventId,
-                    timestamp: timestamp.toISOString()
+                    input: {
+                        eventId,
+                        timestamp: timestamp.toISOString()
+                    }
                 }
             });
             return result.data?.removeTimestampFromEvent || null;
