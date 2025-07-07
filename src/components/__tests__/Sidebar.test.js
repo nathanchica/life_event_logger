@@ -3,8 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createMockEventLabel } from '../../mocks/eventLabels';
-import { createMockLoggableEventsContextValue, createMockViewOptionsContextValue } from '../../mocks/providers';
-import { LoggableEventsContext } from '../../providers/LoggableEventsProvider';
+import { createMockViewOptionsContextValue } from '../../mocks/providers';
 import { ViewOptionsContext } from '../../providers/ViewOptionsProvider';
 import Sidebar from '../Sidebar';
 
@@ -27,7 +26,6 @@ describe('Sidebar', () => {
     const mockEnableDarkTheme = jest.fn();
     const mockEnableLightTheme = jest.fn();
     const mockSetActiveEventLabelId = jest.fn();
-    const mockDeleteEventLabel = jest.fn();
 
     const defaultProps = {
         isCollapsed: false,
@@ -46,18 +44,13 @@ describe('Sidebar', () => {
     });
 
     const renderWithProviders = (component, options = {}) => {
-        const { theme = 'light', eventLabels = [] } = options;
+        const { theme = 'light' } = options;
 
         const mockViewOptionsValue = createMockViewOptionsContextValue({
             theme,
             enableDarkTheme: mockEnableDarkTheme,
             enableLightTheme: mockEnableLightTheme,
             setActiveEventLabelId: mockSetActiveEventLabelId
-        });
-
-        const mockLoggableEventsValue = createMockLoggableEventsContextValue({
-            eventLabels,
-            deleteEventLabel: mockDeleteEventLabel
         });
 
         const muiTheme = createTheme({
@@ -68,9 +61,7 @@ describe('Sidebar', () => {
 
         return render(
             <ThemeProvider theme={muiTheme}>
-                <LoggableEventsContext.Provider value={mockLoggableEventsValue}>
-                    <ViewOptionsContext.Provider value={mockViewOptionsValue}>{component}</ViewOptionsContext.Provider>
-                </LoggableEventsContext.Provider>
+                <ViewOptionsContext.Provider value={mockViewOptionsValue}>{component}</ViewOptionsContext.Provider>
             </ThemeProvider>
         );
     };
