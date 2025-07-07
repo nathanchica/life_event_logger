@@ -4,7 +4,6 @@ import { ApolloProvider, ApolloClient, NormalizedCacheObject } from '@apollo/cli
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import LoggableEventsGQL from './LoggableEventsGQL';
-import LoggableEventsView from './LoggableEventsView';
 import LoginView from './LoginView';
 
 import { createApolloClient } from '../apollo/client';

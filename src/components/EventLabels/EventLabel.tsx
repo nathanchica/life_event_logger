@@ -88,7 +88,9 @@ const EventLabel = ({ eventLabelFragment, isShowingEditActions, existingLabelNam
     };
 
     const handleLabelClick = () => {
-        setActiveEventLabelId(isActive ? null : id);
+        if (!isShowingEditActions) {
+            setActiveEventLabelId(isActive ? null : id);
+        }
     };
 
     return (
