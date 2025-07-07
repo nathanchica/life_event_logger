@@ -13,6 +13,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import TextField from '@mui/material/TextField';
 
+import { useEventLabels } from '../../hooks/useEventLabels';
 import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
 import { useViewOptions } from '../../providers/ViewOptionsProvider';
 import { EventLabel as EventLabelType, EventLabelFragment } from '../../utils/types';
@@ -42,8 +43,9 @@ type Props = EventLabelType & {
 /**
  * EventLabel component for displaying and editing event labels.
  */
-const EventLabel = ({ id, name, isShowingEditActions, ...eventLabelData }: Props) => {
-    const { updateEventLabel, deleteEventLabel, eventLabels } = useLoggableEventsContext();
+const EventLabel = ({ id, name, isShowingEditActions }: Props) => {
+    const { eventLabels } = useLoggableEventsContext(); // Keep reading from context for validation
+    const { updateEventLabel, deleteEventLabel, updateIsLoading, deleteIsLoading } = useEventLabels(); // Use Apollo mutations
 
     // Add context for active label
     const { activeEventLabelId, setActiveEventLabelId } = useViewOptions();
@@ -55,8 +57,8 @@ const EventLabel = ({ id, name, isShowingEditActions, ...eventLabelData }: Props
     const shouldValidate = editValue !== name;
     const validationError = shouldValidate ? validateEventLabelName(editValue, eventLabels) : null;
 
-    const handleDelete = () => {
-        deleteEventLabel(id);
+    const handleDelete = async () => {
+        await deleteEventLabel(id);
     };
 
     const handleEditClick = () => {
@@ -69,13 +71,15 @@ const EventLabel = ({ id, name, isShowingEditActions, ...eventLabelData }: Props
         setEditValue(name);
     };
 
-    const handleEditSave = () => {
-        setIsEditingName(false);
-        updateEventLabel({ ...eventLabelData, id, name: editValue.trim() });
+    const handleEditSave = async () => {
+        if (validationError === null) {
+            await updateEventLabel(id, { name: editValue.trim() });
+            setIsEditingName(false);
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && validationError === null) {
+        if (e.key === 'Enter') {
             handleEditSave();
         } else if (e.key === 'Escape') {
             handleCancelEdit();
@@ -97,7 +101,7 @@ const EventLabel = ({ id, name, isShowingEditActions, ...eventLabelData }: Props
                             edge="end"
                             size="small"
                             onClick={handleEditSave}
-                            disabled={validationError !== null}
+                            disabled={validationError !== null || updateIsLoading}
                             aria-label="save"
                         >
                             <CheckIcon />
@@ -118,7 +122,13 @@ const EventLabel = ({ id, name, isShowingEditActions, ...eventLabelData }: Props
                                 <CancelIcon />
                             </IconButton>
                         ) : (
-                            <IconButton edge="start" size="small" onClick={handleDelete} aria-label="delete">
+                            <IconButton
+                                edge="start"
+                                size="small"
+                                onClick={handleDelete}
+                                disabled={deleteIsLoading}
+                                aria-label="delete"
+                            >
                                 <DeleteIcon />
                             </IconButton>
                         )

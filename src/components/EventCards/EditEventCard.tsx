@@ -22,6 +22,7 @@ import EventCard from './EventCard';
 import EventLabelAutocomplete from './EventLabelAutocomplete';
 import WarningThresholdForm from './WarningThresholdForm';
 
+import { useLoggableEvents } from '../../hooks/useLoggableEvents';
 import { useLoggableEventsContext, EVENT_DEFAULT_VALUES } from '../../providers/LoggableEventsProvider';
 import { useViewOptions } from '../../providers/ViewOptionsProvider';
 import { EventLabel } from '../../utils/types';
@@ -63,7 +64,8 @@ const WarningSwitch = ({ checked, onChange }: { checked: boolean; onChange: (new
  */
 const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
     /** Context */
-    const { loggableEvents, createLoggableEvent, updateLoggableEventDetails, eventLabels } = useLoggableEventsContext();
+    const { loggableEvents, eventLabels } = useLoggableEventsContext(); // Keep reading from context for now
+    const { createLoggableEvent, updateLoggableEvent, createIsLoading, updateIsLoading } = useLoggableEvents(); // Use Apollo mutations
     const { activeEventLabelId } = useViewOptions();
 
     const theme = useTheme();
@@ -135,10 +137,10 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
     };
 
     /** Save handlers */
-    const handleNewEventSubmit = (event: SyntheticEvent) => {
+    const handleNewEventSubmit = async (event: SyntheticEvent) => {
         event.preventDefault();
         if (eventNameIsValid) {
-            createLoggableEvent(
+            await createLoggableEvent(
                 eventNameInputValue,
                 warningThresholdValueToSave,
                 selectedLabels.map(({ id }) => id)
@@ -147,11 +149,10 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
         }
     };
 
-    const handleUpdateEventSubmit = (event: SyntheticEvent) => {
+    const handleUpdateEventSubmit = async (event: SyntheticEvent) => {
         event.preventDefault();
-        if (eventNameIsValid) {
-            updateLoggableEventDetails({
-                ...eventToEdit,
+        if (eventNameIsValid && eventIdToEdit) {
+            await updateLoggableEvent(eventIdToEdit, {
                 name: eventNameInputValue,
                 warningThresholdInDays: warningThresholdValueToSave,
                 labelIds: selectedLabels.map(({ id }) => id)
@@ -234,7 +235,7 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
 
                     <CardActions>
                         <Button
-                            disabled={!eventNameIsValid}
+                            disabled={!eventNameIsValid || createIsLoading || updateIsLoading}
                             type="submit"
                             size="small"
                             aria-describedby={!eventNameIsValid ? 'submit-button-disabled-reason' : undefined}
