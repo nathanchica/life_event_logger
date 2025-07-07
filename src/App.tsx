@@ -1,12 +1,11 @@
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
-import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-import CssBaseline from '@mui/material/CssBaseline';
+import { ApolloProvider, ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+import { createApolloClient } from './apollo/client';
 import EventLoggerPage from './components/EventLoggerPage';
 import AuthProvider from './providers/AuthProvider';
 import LoggableEventsProvider from './providers/LoggableEventsProvider';
@@ -14,40 +13,28 @@ import ViewOptionsProvider from './providers/ViewOptionsProvider';
 
 /**
  * Main application component that initializes the app and provides all context providers.
+ * Now uses the new Apollo Client setup with cache persistence and offline support.
  */
 const App = () => {
-    /**
-     * Adding user authorization token to request headers
-     * https://www.apollographql.com/docs/react/networking/authentication
-     */
-    const client = useMemo(() => {
-        const httpLink = createHttpLink({
-            uri: 'http://localhost:4000',
-            credentials: 'include'
-        });
+    const [apolloClient, setApolloClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null);
 
-        /* istanbul ignore next - setContext callback only executes during GraphQL requests */
-        const authLink = setContext((_, { headers }) => {
-            const token = localStorage.getItem('token');
-            return {
-                headers: {
-                    ...headers,
-                    authorization: token ? `Bearer ${token}` : ''
-                }
-            };
-        });
+    // Check if offline mode is requested via URL parameter
+    const isOfflineMode = new URLSearchParams(window.location.search).has('offline');
 
-        return new ApolloClient({
-            link: authLink.concat(httpLink),
-            cache: new InMemoryCache()
-        });
-    }, []);
+    useEffect(() => {
+        // Initialize Apollo Client with cache persistence and offline support
+        createApolloClient(isOfflineMode).then(setApolloClient);
+    }, [isOfflineMode]);
+
+    // Don't render anything while Apollo Client is being initialized
+    if (!apolloClient) {
+        return null;
+    }
 
     return (
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
-            <ApolloProvider client={client}>
+            <ApolloProvider client={apolloClient}>
                 <LocalizationProvider dateAdapter={AdapterMoment}>
-                    <CssBaseline />
                     <AuthProvider>
                         <ViewOptionsProvider>
                             <LoggableEventsProvider>
