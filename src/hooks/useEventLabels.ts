@@ -49,7 +49,7 @@ const DELETE_EVENT_LABEL = gql`
  * Provides create, update, and delete operations with optimistic updates.
  */
 export const useEventLabels = () => {
-    const { user, isOfflineMode } = useAuth();
+    const { user } = useAuth();
 
     const [createEventLabelMutation, { loading: createIsLoading }] = useMutation(CREATE_EVENT_LABEL, {
         optimisticResponse: (variables) => ({
@@ -130,13 +130,10 @@ export const useEventLabels = () => {
             });
             return result.data?.createEventLabel || null;
         } catch (error) {
-            // In offline mode (demo mode), mutation will fail but optimistic update remains
-            if (isOfflineMode) {
-                console.log('Created event label in demo mode');
-                return null;
-            }
             console.error('Error creating event label:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return null;
         }
     };
 
@@ -147,12 +144,10 @@ export const useEventLabels = () => {
             });
             return result.data?.updateEventLabel || null;
         } catch (error) {
-            if (isOfflineMode) {
-                console.log('Updated event label in demo mode');
-                return null;
-            }
             console.error('Error updating event label:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return null;
         }
     };
 
@@ -163,12 +158,10 @@ export const useEventLabels = () => {
             });
             return true;
         } catch (error) {
-            if (isOfflineMode) {
-                console.log('Deleted event label in demo mode');
-                return true;
-            }
             console.error('Error deleting event label:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return true;
         }
     };
 

@@ -7,20 +7,19 @@ import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 
 import { useEventLabels } from '../../hooks/useEventLabels';
-import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
 import { validateEventLabelName, MAX_LABEL_LENGTH } from '../../utils/validation';
 
 type Props = {
     onCancel: () => void;
     onSuccess: () => void;
+    existingLabelNames: Array<string>;
 };
 
-const CreateEventLabelForm = ({ onCancel, onSuccess }: Props) => {
-    const { eventLabels } = useLoggableEventsContext();
+const CreateEventLabelForm = ({ onCancel, onSuccess, existingLabelNames }: Props) => {
     const { createEventLabel, createIsLoading } = useEventLabels();
     const [newLabelName, setNewLabelName] = useState('');
 
-    const validationError = validateEventLabelName(newLabelName, eventLabels);
+    const validationError = validateEventLabelName(newLabelName, existingLabelNames);
     const isTooLong = validationError === 'TooLongName';
     const isDuplicate = validationError === 'DuplicateName';
     const isEmpty = validationError === 'EmptyName';

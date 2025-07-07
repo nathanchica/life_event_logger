@@ -14,7 +14,6 @@ import ListItemText from '@mui/material/ListItemText';
 import TextField from '@mui/material/TextField';
 
 import { useEventLabels } from '../../hooks/useEventLabels';
-import { useLoggableEventsContext } from '../../providers/LoggableEventsProvider';
 import { useViewOptions } from '../../providers/ViewOptionsProvider';
 import { EventLabel as EventLabelType, EventLabelFragment } from '../../utils/types';
 import { validateEventLabelName, MAX_LABEL_LENGTH } from '../../utils/validation';
@@ -36,15 +35,17 @@ export const createEventLabelFromFragment = ({ id, name, createdAt }: EventLabel
     };
 };
 
-type Props = EventLabelType & {
+type Props = {
+    eventLabelFragment: EventLabelFragment;
     isShowingEditActions: boolean;
+    existingLabelNames: Array<string>;
 };
 
 /**
  * EventLabel component for displaying and editing event labels.
  */
-const EventLabel = ({ id, name, isShowingEditActions }: Props) => {
-    const { eventLabels } = useLoggableEventsContext(); // Keep reading from context for validation
+const EventLabel = ({ eventLabelFragment, isShowingEditActions, existingLabelNames }: Props) => {
+    const { id, name } = createEventLabelFromFragment(eventLabelFragment);
     const { updateEventLabel, deleteEventLabel, updateIsLoading, deleteIsLoading } = useEventLabels(); // Use Apollo mutations
 
     // Add context for active label
@@ -55,7 +56,7 @@ const EventLabel = ({ id, name, isShowingEditActions }: Props) => {
     const [editValue, setEditValue] = useState(name);
 
     const shouldValidate = editValue !== name;
-    const validationError = shouldValidate ? validateEventLabelName(editValue, eventLabels) : null;
+    const validationError = shouldValidate ? validateEventLabelName(editValue, existingLabelNames) : null;
 
     const handleDelete = async () => {
         await deleteEventLabel(id);

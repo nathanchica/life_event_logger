@@ -36,7 +36,7 @@ export const LOGIN_MUTATION = gql`
 const LoginView = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [loginMutation] = useMutation(LOGIN_MUTATION);
-    const { login, setOfflineMode } = useAuth();
+    const { login } = useAuth();
     const theme = useTheme();
 
     const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
@@ -64,7 +64,10 @@ const LoginView = () => {
     };
 
     const handleOfflineMode = () => {
-        setOfflineMode(true);
+        // Add the offline parameter to the URL and reload
+        const url = new URL(window.location.href);
+        url.searchParams.set('offline', 'true');
+        window.location.href = url.toString();
     };
 
     // Enable Google One Tap login

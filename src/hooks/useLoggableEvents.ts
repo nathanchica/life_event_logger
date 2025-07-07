@@ -1,7 +1,6 @@
 import { gql, useMutation, Reference } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
-import LoggableEventCard from '../components/EventCards/LoggableEventCard';
 import { useAuth } from '../providers/AuthProvider';
 import { LoggableEvent } from '../utils/types';
 
@@ -28,8 +27,20 @@ interface RemoveTimestampInput {
     timestamp: string; // ISO string
 }
 
-// Import the existing fragment
-const LOGGABLE_EVENT_FRAGMENT = LoggableEventCard.fragments.loggableEvent;
+const LOGGABLE_EVENT_FRAGMENT = gql`
+    fragment LoggableEventFragment on LoggableEvent {
+        id
+        name
+        timestamps
+        warningThresholdInDays
+        createdAt
+        labels {
+            id
+            name
+            createdAt
+        }
+    }
+`;
 
 // GraphQL mutations
 const CREATE_LOGGABLE_EVENT = gql`
@@ -85,7 +96,7 @@ const REMOVE_TIMESTAMP_FROM_EVENT = gql`
  * Provides create, update, delete, and timestamp operations with optimistic updates.
  */
 export const useLoggableEvents = () => {
-    const { user, isOfflineMode } = useAuth();
+    const { user } = useAuth();
 
     const [createLoggableEventMutation, { loading: createIsLoading }] = useMutation(CREATE_LOGGABLE_EVENT, {
         optimisticResponse: (variables) => ({
@@ -174,20 +185,7 @@ export const useLoggableEvents = () => {
         })
     });
 
-    const [removeTimestampMutation, { loading: removeTimestampIsLoading }] = useMutation(REMOVE_TIMESTAMP_FROM_EVENT, {
-        optimisticResponse: (variables) => ({
-            removeTimestampFromEvent: {
-                __typename: 'LoggableEvent',
-                id: variables.eventId,
-                // Apollo will merge the actual current state
-                timestamps: [],
-                name: '',
-                warningThresholdInDays: 0,
-                createdAt: new Date().toISOString(),
-                labels: []
-            }
-        })
-    });
+    const [removeTimestampMutation, { loading: removeTimestampIsLoading }] = useMutation(REMOVE_TIMESTAMP_FROM_EVENT);
 
     // Wrapper functions with error handling
     const createLoggableEvent = async (
@@ -208,12 +206,10 @@ export const useLoggableEvents = () => {
             });
             return result.data?.createLoggableEvent || null;
         } catch (error) {
-            if (isOfflineMode) {
-                console.log('Created loggable event in demo mode');
-                return null;
-            }
             console.error('Error creating loggable event:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return null;
         }
     };
 
@@ -224,12 +220,10 @@ export const useLoggableEvents = () => {
             });
             return result.data?.updateLoggableEvent || null;
         } catch (error) {
-            if (isOfflineMode) {
-                console.log('Updated loggable event in demo mode');
-                return null;
-            }
             console.error('Error updating loggable event:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return null;
         }
     };
 
@@ -240,12 +234,10 @@ export const useLoggableEvents = () => {
             });
             return true;
         } catch (error) {
-            if (isOfflineMode) {
-                console.log('Deleted loggable event in demo mode');
-                return true;
-            }
             console.error('Error deleting loggable event:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return true;
         }
     };
 
@@ -259,12 +251,10 @@ export const useLoggableEvents = () => {
             });
             return result.data?.addTimestampToEvent || null;
         } catch (error) {
-            if (isOfflineMode) {
-                console.log('Added timestamp to event in demo mode');
-                return null;
-            }
             console.error('Error adding timestamp to event:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return null;
         }
     };
 
@@ -278,12 +268,10 @@ export const useLoggableEvents = () => {
             });
             return result.data?.removeTimestampFromEvent || null;
         } catch (error) {
-            if (isOfflineMode) {
-                console.log('Removed timestamp from event in demo mode');
-                return null;
-            }
             console.error('Error removing timestamp from event:', error);
-            throw error;
+            // Don't throw the error - this allows the optimistic update to persist
+            // even when the network request fails
+            return null;
         }
     };
 
