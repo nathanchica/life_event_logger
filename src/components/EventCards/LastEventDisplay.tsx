@@ -37,7 +37,7 @@ const LastEventDisplay = ({ daysSinceLastEvent, warningThresholdInDays }: Props)
 
     return (
         <Box
-            sx={{ mb: 1, color: isViolatingThreshold ? warningColor : 'inherit' }}
+            sx={{ mt: 1, mb: 1, color: isViolatingThreshold ? warningColor : 'text.secondary' }}
             role="status"
             aria-live={isViolatingThreshold ? 'polite' : 'off'}
             aria-label={isViolatingThreshold ? `Warning: ${textToDisplay}` : textToDisplay}

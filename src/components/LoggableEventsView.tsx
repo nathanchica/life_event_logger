@@ -41,6 +41,7 @@ const LoggableEventsView = ({ isLoading = false, offlineMode = false, isShowingF
             aria-label="Loggable events main content"
             css={css`
                 padding: 64px;
+                overflow-y: scroll;
             `}
             size="grow"
         >
