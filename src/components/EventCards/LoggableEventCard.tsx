@@ -80,7 +80,7 @@ const LoggableEventCard = ({ loggableEventFragment }: Props) => {
     };
 
     const currDate = new Date();
-    const sortedTimestamps = timestamps.sort(sortDateObjectsByNewestFirst);
+    const sortedTimestamps = [...timestamps].sort(sortDateObjectsByNewestFirst);
     const daysSinceLastEvent = getDaysSinceLastEventRecord(sortedTimestamps, currDate);
     const lastEventDisplayIsShowing = typeof daysSinceLastEvent === 'number';
 
