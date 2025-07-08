@@ -2,7 +2,6 @@ import { InMemoryCache, gql } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing';
 import { renderHook, act } from '@testing-library/react';
 
-import { createMockEventLabelFragment } from '../../mocks/eventLabels';
 import { createMockAuthContextValue } from '../../mocks/providers';
 import { createMockUser } from '../../mocks/user';
 import { AuthContext } from '../../providers/AuthProvider';
