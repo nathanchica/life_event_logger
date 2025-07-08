@@ -4,11 +4,9 @@ import { OperationDefinitionNode } from 'graphql';
 
 import { cache, setupCachePersistence } from './cache';
 
-import {
-    GET_LOGGABLE_EVENTS_FOR_USER,
-    LOGGABLE_EVENT_FRAGMENT,
-    EVENT_LABEL_FRAGMENT
-} from '../hooks/useLoggableEventsForUser';
+import LoggableEventCard from '../components/EventCards/LoggableEventCard';
+import EventLabel from '../components/EventLabels/EventLabel';
+import { GET_LOGGABLE_EVENTS_FOR_USER } from '../components/LoggableEventsGQL';
 import { LoggableEventFragment, EventLabelFragment } from '../utils/types';
 
 /**
@@ -18,7 +16,7 @@ const readLoggableEventFromCache = (eventId: string): LoggableEventFragment | nu
     try {
         return cache.readFragment<LoggableEventFragment>({
             id: `LoggableEvent:${eventId}`,
-            fragment: LOGGABLE_EVENT_FRAGMENT
+            fragment: LoggableEventCard.fragments.loggableEvent
         });
     } catch {
         // Event not found in cache or invalid eventId - return null so caller can handle missing data
@@ -33,7 +31,7 @@ const readEventLabelFromCache = (labelId: string): EventLabelFragment | null => 
     try {
         return cache.readFragment<EventLabelFragment>({
             id: `EventLabel:${labelId}`,
-            fragment: EVENT_LABEL_FRAGMENT
+            fragment: EventLabel.fragments.eventLabel
         });
     } catch {
         // Label not found in cache or invalid labelId - return null so caller can handle missing data
