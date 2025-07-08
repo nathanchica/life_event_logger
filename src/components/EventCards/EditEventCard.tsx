@@ -2,6 +2,7 @@
 
 import { useState, ChangeEventHandler, SyntheticEvent } from 'react';
 
+import { gql, useFragment } from '@apollo/client';
 import { css } from '@emotion/react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -21,16 +22,88 @@ import invariant from 'tiny-invariant';
 
 import EventCard from './EventCard';
 import EventLabelAutocomplete from './EventLabelAutocomplete';
-import { createLoggableEventFromFragment } from './LoggableEventCard';
 import WarningThresholdForm from './WarningThresholdForm';
 
 import { useLoggableEvents } from '../../hooks/useLoggableEvents';
-import { useLoggableEventsForUser } from '../../hooks/useLoggableEventsForUser';
 import { useAuth } from '../../providers/AuthProvider';
 import { useViewOptions } from '../../providers/ViewOptionsProvider';
 import { EventLabel, LoggableEvent } from '../../utils/types';
 import { isEventNameValid, getEventNameValidationErrorText } from '../../utils/validation';
-import { createEventLabelFromFragment } from '../EventLabels/EventLabel';
+
+type EventLabelFragment = {
+    id: string;
+    name: string;
+};
+interface LoggableEventCoreFragment {
+    id: string;
+    name: string;
+}
+
+type LoggableEventFullFragment = LoggableEventCoreFragment & {
+    timestamps: string[];
+    warningThresholdInDays: number;
+    createdAt: string;
+    labels: Array<EventLabelFragment>;
+};
+
+const USER_LABELS_AND_EVENTS_FRAGMENT = gql`
+    fragment UserLabelsAndEventsFragment on User {
+        loggableEvents {
+            id
+            name
+        }
+        eventLabels {
+            id
+            name
+        }
+    }
+`;
+
+const LOGGABLE_EVENT_FRAGMENT = gql`
+    fragment LoggableEventFragment on LoggableEvent {
+        id
+        name
+        timestamps
+        warningThresholdInDays
+        createdAt
+        labels {
+            id
+            name
+        }
+    }
+`;
+
+const createCoreLoggableEventFromFragment = ({ id, name }: LoggableEventCoreFragment): LoggableEventCoreFragment => {
+    return {
+        id,
+        name
+    };
+};
+
+const createLoggableEventFromFragment = ({
+    id,
+    name,
+    timestamps,
+    createdAt,
+    warningThresholdInDays,
+    labels
+}: LoggableEventFullFragment): LoggableEvent => {
+    return {
+        id,
+        name,
+        timestamps: timestamps.map((timestampIsoString) => new Date(timestampIsoString)),
+        createdAt: new Date(createdAt),
+        warningThresholdInDays,
+        labelIds: labels.map(({ id }) => id)
+    };
+};
+
+const createEventLabelFromFragment = ({ id, name }: EventLabelFragment): EventLabel => {
+    return {
+        id,
+        name
+    };
+};
 
 const EVENT_DEFAULT_VALUES: LoggableEvent = {
     id: '',
@@ -64,14 +137,38 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
 
     invariant(user, 'User is not authenticated');
 
-    const { loggableEventsFragments, eventLabelsFragments } = useLoggableEventsForUser(user);
+    const { complete: userLabelsAndEventsDataComplete, data: userLabelsAndEventsData } = useFragment({
+        fragment: USER_LABELS_AND_EVENTS_FRAGMENT,
+        fragmentName: 'UserLabelsAndEventsFragment',
+        from: {
+            __typename: 'User',
+            id: user.id
+        }
+    });
+    const { complete: loggableEventDataComplete, data: loggableEventData } = useFragment({
+        fragment: LOGGABLE_EVENT_FRAGMENT,
+        fragmentName: 'LoggableEventFragment',
+        from: {
+            __typename: 'LoggableEvent',
+            id: eventIdToEdit
+        }
+    });
 
-    const loggableEvents = loggableEventsFragments.map(createLoggableEventFromFragment);
-    const eventLabels = eventLabelsFragments.map(createEventLabelFromFragment);
-
-    const existingEventNames = loggableEvents.map((event) => event.name);
-    const eventToEdit = loggableEvents.find(({ id }) => id === eventIdToEdit) || EVENT_DEFAULT_VALUES;
+    const allEventLabels: Array<EventLabel> = userLabelsAndEventsDataComplete
+        ? userLabelsAndEventsData.eventLabels.map(createEventLabelFromFragment)
+        : [];
+    const allLoggableEvents: Array<LoggableEvent> = userLabelsAndEventsDataComplete
+        ? userLabelsAndEventsData.loggableEvents.map(createCoreLoggableEventFromFragment)
+        : [];
+    const existingEventNames: Array<string> = userLabelsAndEventsDataComplete
+        ? allLoggableEvents.map(({ name }) => name)
+        : [];
     const isCreatingNewEvent = !eventIdToEdit;
+
+    const eventToEdit =
+        loggableEventDataComplete && !isCreatingNewEvent
+            ? createLoggableEventFromFragment(loggableEventData)
+            : EVENT_DEFAULT_VALUES;
 
     /** Event name */
     const [eventNameInputValue, setEventNameInputValue] = useState(eventToEdit.name);
@@ -110,7 +207,9 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
      * If creating a new event, pre-populate with the active event label if it exists.
      * If editing an existing event, pre-populate with existing labels from the event being edited.
      */
-    const activeEventLabel = activeEventLabelId ? eventLabels.find(({ id }) => id === activeEventLabelId) : undefined;
+    const activeEventLabel = activeEventLabelId
+        ? allEventLabels.find(({ id }) => id === activeEventLabelId)
+        : undefined;
     const [labelInputIsVisible, setLabelInputIsVisible] = useState(
         isCreatingNewEvent ? Boolean(activeEventLabelId) : eventToEdit.labelIds && eventToEdit.labelIds.length > 0
     );
@@ -119,7 +218,7 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
             return [activeEventLabel];
         }
         // If editing, pre-populate with existing labels
-        return eventToEdit.labelIds ? eventLabels.filter(({ id }) => eventToEdit.labelIds.includes(id)) : [];
+        return eventToEdit.labelIds ? allEventLabels.filter(({ id }) => eventToEdit.labelIds.includes(id)) : [];
     });
 
     /** Handlers */
@@ -239,7 +338,7 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
                                 <EventLabelAutocomplete
                                     selectedLabels={selectedLabels}
                                     setSelectedLabels={setSelectedLabels}
-                                    existingLabels={eventLabels}
+                                    existingLabels={allEventLabels}
                                 />
                             </Box>
                         )}

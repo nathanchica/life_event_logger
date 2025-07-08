@@ -13,7 +13,7 @@ export interface EventLabel {
     /** Displayable name of the event label */
     name: string;
     /** Date object of when the event label was created */
-    createdAt: Date;
+    createdAt?: Date;
 }
 
 export interface LoggableEvent {
