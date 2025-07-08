@@ -120,10 +120,14 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         createEventLabel: {
-                            __typename: 'EventLabel',
-                            id: inputVariables?.id || `server-${Date.now()}`,
-                            name: inputVariables?.name || '',
-                            createdAt: new Date().toISOString()
+                            __typename: 'CreateEventLabelPayload',
+                            eventLabel: {
+                                __typename: 'EventLabel',
+                                id: inputVariables?.id || `server-${Date.now()}`,
+                                name: inputVariables?.name || '',
+                                createdAt: new Date().toISOString()
+                            },
+                            errors: []
                         }
                     }
                 });
@@ -135,10 +139,14 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         updateEventLabel: {
-                            __typename: 'EventLabel',
-                            id: inputVariables?.id,
-                            name: inputVariables?.name ?? existingLabel?.name ?? '',
-                            createdAt: existingLabel?.createdAt || new Date().toISOString()
+                            __typename: 'UpdateEventLabelPayload',
+                            eventLabel: {
+                                __typename: 'EventLabel',
+                                id: inputVariables?.id,
+                                name: inputVariables?.name ?? existingLabel?.name ?? '',
+                                createdAt: existingLabel?.createdAt || new Date().toISOString()
+                            },
+                            errors: []
                         }
                     }
                 });
@@ -195,8 +203,12 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         deleteEventLabel: {
-                            __typename: 'EventLabel',
-                            id: inputVariables?.id
+                            __typename: 'DeleteEventLabelPayload',
+                            eventLabel: {
+                                __typename: 'EventLabel',
+                                id: inputVariables?.id
+                            },
+                            errors: []
                         }
                     }
                 });

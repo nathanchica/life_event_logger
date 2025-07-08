@@ -59,7 +59,7 @@ const EventLabel = ({ eventLabelFragment, isShowingEditActions, existingLabelNam
     const validationError = shouldValidate ? validateEventLabelName(editValue, existingLabelNames) : null;
 
     const handleDelete = async () => {
-        await deleteEventLabel(id);
+        await deleteEventLabel({ id });
     };
 
     const handleEditClick = () => {
@@ -74,7 +74,7 @@ const EventLabel = ({ eventLabelFragment, isShowingEditActions, existingLabelNam
 
     const handleEditSave = async () => {
         if (validationError === null) {
-            await updateEventLabel(id, { name: editValue.trim() });
+            await updateEventLabel({ id, name: editValue.trim() });
             setIsEditingName(false);
         }
     };

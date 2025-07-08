@@ -77,3 +77,14 @@ export type LoggableEventFragment = {
     /** List of event labels associated with this event */
     labels: Array<EventLabelFragment>;
 };
+
+export type GenericApiError = {
+    /** GraphQL typename */
+    __typename: string;
+    /** Error code */
+    code: string;
+    /** Human-readable error message */
+    message: string;
+    /** Optional field that caused the error */
+    field?: string;
+};
