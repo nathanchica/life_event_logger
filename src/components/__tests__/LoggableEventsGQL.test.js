@@ -73,8 +73,7 @@ describe('LoggableEventsGQL', () => {
                     timestamps: [new Date('2023-01-01T00:00:00Z')],
                     createdAt: new Date('2023-01-01T00:00:00Z'),
                     warningThresholdInDays: 7,
-                    labelIds: ['label-1', 'label-2'],
-                    isSynced: true
+                    labelIds: ['label-1', 'label-2']
                 }),
                 expect.objectContaining({
                     id: 'event-2',
@@ -82,22 +81,19 @@ describe('LoggableEventsGQL', () => {
                     timestamps: [new Date('2023-01-01T00:00:00Z')],
                     createdAt: new Date('2023-01-01T00:00:00Z'),
                     warningThresholdInDays: 7,
-                    labelIds: [],
-                    isSynced: true
+                    labelIds: []
                 })
             ]);
             expect(mockLoadEventLabels).toHaveBeenCalledWith([
                 expect.objectContaining({
                     id: 'label-1',
                     name: 'Work',
-                    createdAt: new Date('2023-01-01T00:00:00Z'),
-                    isSynced: true
+                    createdAt: new Date('2023-01-01T00:00:00Z')
                 }),
                 expect.objectContaining({
                     id: 'label-2',
                     name: 'Personal',
-                    createdAt: new Date('2023-01-01T00:00:00Z'),
-                    isSynced: true
+                    createdAt: new Date('2023-01-01T00:00:00Z')
                 })
             ]);
         });

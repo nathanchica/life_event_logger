@@ -37,7 +37,6 @@ const EVENT_DEFAULT_VALUES: LoggableEvent = {
     name: '',
     warningThresholdInDays: 0,
     labelIds: [],
-    isSynced: false,
     createdAt: new Date(),
     timestamps: []
 };

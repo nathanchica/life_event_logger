@@ -15,8 +15,7 @@ describe('EventLabel', () => {
     const defaultLabel = createMockEventLabel({
         id: 'label-1',
         name: 'Work',
-        createdAt: new Date('2023-01-01T00:00:00Z'),
-        isSynced: true
+        createdAt: new Date('2023-01-01T00:00:00Z')
     });
 
     const mockViewOptionsContext = createMockViewOptionsContextValue({
@@ -130,8 +129,7 @@ describe('EventLabel', () => {
             expect(mockUpdateEventLabel).toHaveBeenCalledWith({
                 id: 'label-1',
                 name: 'Updated',
-                createdAt: new Date('2023-01-01T00:00:00Z'),
-                isSynced: true
+                createdAt: new Date('2023-01-01T00:00:00Z')
             });
         });
 
@@ -147,8 +145,7 @@ describe('EventLabel', () => {
             expect(mockUpdateEventLabel).toHaveBeenCalledWith({
                 id: 'label-1',
                 name: 'Updated',
-                createdAt: new Date('2023-01-01T00:00:00Z'),
-                isSynced: true
+                createdAt: new Date('2023-01-01T00:00:00Z')
             });
             expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
         });

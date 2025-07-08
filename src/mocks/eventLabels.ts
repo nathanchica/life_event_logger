@@ -3,8 +3,7 @@ import { EventLabel, EventLabelFragment } from '../utils/types';
 const mockEventLabel: EventLabel = {
     id: 'label-1',
     name: 'Work',
-    createdAt: new Date('2023-01-01T00:00:00Z'),
-    isSynced: true
+    createdAt: new Date('2023-01-01T00:00:00Z')
 };
 
 export const createMockEventLabel = (overrides: Partial<EventLabel> = {}): EventLabel => {

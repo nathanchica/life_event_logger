@@ -14,8 +14,6 @@ export interface EventLabel {
     name: string;
     /** Date object of when the event label was created */
     createdAt: Date;
-    /** Whether or not the event label is synced with the backend */
-    isSynced: boolean;
 }
 
 export interface LoggableEvent {
@@ -31,8 +29,6 @@ export interface LoggableEvent {
     warningThresholdInDays: number;
     /** List of event label ids associated with this event */
     labelIds: Array<string>;
-    /** Whether or not the event is synced with the backend */
-    isSynced: boolean;
 }
 
 /**

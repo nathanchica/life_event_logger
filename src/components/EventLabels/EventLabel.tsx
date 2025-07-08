@@ -30,8 +30,7 @@ export const createEventLabelFromFragment = ({ id, name, createdAt }: EventLabel
     return {
         id,
         name,
-        createdAt: new Date(createdAt),
-        isSynced: true
+        createdAt: new Date(createdAt)
     };
 };
 

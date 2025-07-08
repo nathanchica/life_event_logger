@@ -11,8 +11,7 @@ const mockLoggableEvent: LoggableEvent = {
     labelIds: [
         createMockEventLabel({ id: 'label-1', name: 'Work' }).id,
         createMockEventLabel({ id: 'label-2', name: 'Personal' }).id
-    ],
-    isSynced: true
+    ]
 };
 
 export const createMockLoggableEvent = (overrides: Partial<LoggableEvent> = {}): LoggableEvent => {
