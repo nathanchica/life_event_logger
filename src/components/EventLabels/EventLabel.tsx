@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { gql } from '@apollo/client';
+import { gql, useFragment } from '@apollo/client';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -36,7 +36,7 @@ export const createEventLabelFromFragment = ({ id, name, createdAt }: EventLabel
 };
 
 type Props = {
-    eventLabelFragment: EventLabelFragment;
+    eventLabelId: string;
     isShowingEditActions: boolean;
     existingLabelNames: Array<string>;
 };
@@ -44,11 +44,19 @@ type Props = {
 /**
  * EventLabel component for displaying and editing event labels.
  */
-const EventLabel = ({ eventLabelFragment, isShowingEditActions, existingLabelNames }: Props) => {
-    const { id, name } = createEventLabelFromFragment(eventLabelFragment);
-    const { updateEventLabel, deleteEventLabel, updateIsLoading, deleteIsLoading } = useEventLabels(); // Use Apollo mutations
+const EventLabel = ({ eventLabelId, isShowingEditActions, existingLabelNames }: Props) => {
+    const { data } = useFragment({
+        fragment: EVENT_LABEL_FRAGMENT,
+        fragmentName: 'EventLabelFragment',
+        from: {
+            __typename: 'EventLabel',
+            id: eventLabelId
+        }
+    });
+    const { id, name } = createEventLabelFromFragment(data);
 
-    // Add context for active label
+    const { updateEventLabel, deleteEventLabel, updateIsLoading, deleteIsLoading } = useEventLabels();
+
     const { activeEventLabelId, setActiveEventLabelId } = useViewOptions();
     const isActive = activeEventLabelId === id;
 
