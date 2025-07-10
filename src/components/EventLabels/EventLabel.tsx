@@ -22,15 +22,13 @@ const EVENT_LABEL_FRAGMENT = gql`
     fragment EventLabelFragment on EventLabel {
         id
         name
-        createdAt
     }
 `;
 
-export const createEventLabelFromFragment = ({ id, name, createdAt }: EventLabelFragment): EventLabelType => {
+export const createEventLabelFromFragment = ({ id, name }: EventLabelFragment): EventLabelType => {
     return {
         id,
-        name,
-        createdAt: new Date(createdAt)
+        name
     };
 };
 

@@ -12,8 +12,6 @@ export interface EventLabel {
     id: string;
     /** Displayable name of the event label */
     name: string;
-    /** Date object of when the event label was created */
-    createdAt?: Date;
 }
 
 export interface LoggableEvent {
@@ -23,8 +21,6 @@ export interface LoggableEvent {
     name: string;
     /** Date objects of when this event has been logged */
     timestamps: Array<Date>;
-    /** Date object of when the event was created */
-    createdAt: Date;
     /** Number of days since the last event record before a warning will show for this event */
     warningThresholdInDays: number;
     /** List of event label ids associated with this event */
@@ -53,8 +49,6 @@ export type EventLabelFragment = {
     id: string;
     /** Displayable name of the event label */
     name: string;
-    /** Date string (ISO format) of when the event label was created */
-    createdAt: string;
 };
 
 export type LoggableEventFragment = {
@@ -66,8 +60,6 @@ export type LoggableEventFragment = {
     name: string;
     /** Date strings (ISO format) of when this event has been logged */
     timestamps: Array<string>;
-    /** Date string (ISO format) of when the event was created */
-    createdAt: string;
     /** Number of days since the last event record before a warning will show for this event */
     warningThresholdInDays: number;
     /** List of event labels associated with this event */

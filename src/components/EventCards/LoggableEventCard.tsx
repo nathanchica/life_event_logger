@@ -19,13 +19,12 @@ import { useToggle } from '../../utils/useToggle';
 
 const MAX_RECORDS_TO_DISPLAY = 5;
 
-const LOGGABLE_EVENT_FRAGMENT = gql`
-    fragment LoggableEventFragment on LoggableEvent {
+const LOGGABLE_EVENT_CARD_FRAGMENT = gql`
+    fragment LoggableEventCardFragment on LoggableEvent {
         id
         name
         timestamps
         warningThresholdInDays
-        createdAt
         labels {
             id
             name
@@ -37,7 +36,6 @@ export const createLoggableEventFromFragment = ({
     id,
     name,
     timestamps,
-    createdAt,
     warningThresholdInDays,
     labels
 }: LoggableEventFragment): LoggableEvent => {
@@ -45,7 +43,6 @@ export const createLoggableEventFromFragment = ({
         id,
         name,
         timestamps: timestamps.map((timestampIsoString) => new Date(timestampIsoString)),
-        createdAt: new Date(createdAt),
         warningThresholdInDays,
         labelIds: labels.map(({ id }) => id)
     };
@@ -64,8 +61,8 @@ type Props = {
  */
 const LoggableEventCard = ({ eventId }: Props) => {
     const { data } = useFragment({
-        fragment: LOGGABLE_EVENT_FRAGMENT,
-        fragmentName: 'LoggableEventFragment',
+        fragment: LOGGABLE_EVENT_CARD_FRAGMENT,
+        fragmentName: 'LoggableEventCardFragment',
         from: {
             __typename: 'LoggableEvent',
             id: eventId
@@ -83,7 +80,7 @@ const LoggableEventCard = ({ eventId }: Props) => {
     };
 
     const handleDeleteEventClick = () => {
-        deleteLoggableEvent(id);
+        deleteLoggableEvent({ id });
     };
 
     const currDate = new Date();
@@ -158,7 +155,7 @@ const LoggableEventCard = ({ eventId }: Props) => {
 };
 
 LoggableEventCard.fragments = {
-    loggableEvent: LOGGABLE_EVENT_FRAGMENT
+    loggableEvent: LOGGABLE_EVENT_CARD_FRAGMENT
 };
 
 export default LoggableEventCard;

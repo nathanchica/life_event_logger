@@ -42,7 +42,6 @@ interface LoggableEventCoreFragment {
 type LoggableEventFullFragment = LoggableEventCoreFragment & {
     timestamps: string[];
     warningThresholdInDays: number;
-    createdAt: string;
     labels: Array<EventLabelFragment>;
 };
 
@@ -59,13 +58,12 @@ const USER_LABELS_AND_EVENTS_FRAGMENT = gql`
     }
 `;
 
-const LOGGABLE_EVENT_FRAGMENT = gql`
-    fragment LoggableEventFragment on LoggableEvent {
+const EDIT_EVENT_CARD_FRAGMENT = gql`
+    fragment EditEventCardFragment on LoggableEvent {
         id
         name
         timestamps
         warningThresholdInDays
-        createdAt
         labels {
             id
             name
@@ -84,7 +82,6 @@ const createLoggableEventFromFragment = ({
     id,
     name,
     timestamps,
-    createdAt,
     warningThresholdInDays,
     labels
 }: LoggableEventFullFragment): LoggableEvent => {
@@ -92,7 +89,6 @@ const createLoggableEventFromFragment = ({
         id,
         name,
         timestamps: timestamps.map((timestampIsoString) => new Date(timestampIsoString)),
-        createdAt: new Date(createdAt),
         warningThresholdInDays,
         labelIds: labels.map(({ id }) => id)
     };
@@ -110,7 +106,6 @@ const EVENT_DEFAULT_VALUES: LoggableEvent = {
     name: '',
     warningThresholdInDays: 0,
     labelIds: [],
-    createdAt: new Date(),
     timestamps: []
 };
 
@@ -146,8 +141,8 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
         }
     });
     const { complete: loggableEventDataComplete, data: loggableEventData } = useFragment({
-        fragment: LOGGABLE_EVENT_FRAGMENT,
-        fragmentName: 'LoggableEventFragment',
+        fragment: EDIT_EVENT_CARD_FRAGMENT,
+        fragmentName: 'EditEventCardFragment',
         from: {
             __typename: 'LoggableEvent',
             id: eventIdToEdit
@@ -250,7 +245,11 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
     const handleNewEventSubmit = async (event: SyntheticEvent) => {
         event.preventDefault();
         if (eventNameIsValid) {
-            await createLoggableEvent(formValues.name, formValues.warningThresholdInDays, formValues.labelIds);
+            await createLoggableEvent({
+                name: formValues.name,
+                warningThresholdInDays: formValues.warningThresholdInDays,
+                labelIds: formValues.labelIds
+            });
             dismissForm();
         }
     };
@@ -258,7 +257,10 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
     const handleUpdateEventSubmit = async (event: SyntheticEvent) => {
         event.preventDefault();
         if (eventNameIsValid && eventIdToEdit) {
-            await updateLoggableEvent(eventIdToEdit, formValues);
+            await updateLoggableEvent({
+                id: eventIdToEdit,
+                ...formValues
+            });
             dismissForm();
         }
     };
@@ -369,6 +371,10 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
             </Box>
         </ClickAwayListener>
     );
+};
+
+EditEventCard.fragments = {
+    loggableEvent: EDIT_EVENT_CARD_FRAGMENT
 };
 
 export default EditEventCard;

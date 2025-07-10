@@ -77,13 +77,16 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         createLoggableEvent: {
-                            __typename: 'LoggableEvent',
-                            id: newId,
-                            name: inputVariables?.name || '',
-                            timestamps: [],
-                            warningThresholdInDays: inputVariables?.warningThresholdInDays || 0,
-                            createdAt: new Date().toISOString(),
-                            labels
+                            __typename: 'CreateLoggableEventPayload',
+                            loggableEvent: {
+                                __typename: 'LoggableEvent',
+                                id: newId,
+                                name: inputVariables?.name || '',
+                                timestamps: [],
+                                warningThresholdInDays: inputVariables?.warningThresholdInDays || 0,
+                                labels
+                            },
+                            errors: []
                         }
                     }
                 });
@@ -101,14 +104,19 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         updateLoggableEvent: {
-                            __typename: 'LoggableEvent',
-                            id: inputVariables?.id,
-                            name: inputVariables?.name ?? existingEvent?.name ?? '',
-                            timestamps: existingEvent?.timestamps || [],
-                            warningThresholdInDays:
-                                inputVariables?.warningThresholdInDays ?? existingEvent?.warningThresholdInDays ?? 0,
-                            createdAt: existingEvent?.createdAt || new Date().toISOString(),
-                            labels
+                            __typename: 'UpdateLoggableEventPayload',
+                            loggableEvent: {
+                                __typename: 'LoggableEvent',
+                                id: inputVariables?.id,
+                                name: inputVariables?.name ?? existingEvent?.name ?? '',
+                                timestamps: existingEvent?.timestamps || [],
+                                warningThresholdInDays:
+                                    inputVariables?.warningThresholdInDays ??
+                                    existingEvent?.warningThresholdInDays ??
+                                    0,
+                                labels
+                            },
+                            errors: []
                         }
                     }
                 });
@@ -122,8 +130,7 @@ const offlineMockLink = new ApolloLink((operation) => {
                             eventLabel: {
                                 __typename: 'EventLabel',
                                 id: inputVariables?.id || `server-${Date.now()}`,
-                                name: inputVariables?.name || '',
-                                createdAt: new Date().toISOString()
+                                name: inputVariables?.name || ''
                             },
                             errors: []
                         }
@@ -141,8 +148,7 @@ const offlineMockLink = new ApolloLink((operation) => {
                             eventLabel: {
                                 __typename: 'EventLabel',
                                 id: inputVariables?.id,
-                                name: inputVariables?.name ?? existingLabel?.name ?? '',
-                                createdAt: existingLabel?.createdAt || new Date().toISOString()
+                                name: inputVariables?.name ?? existingLabel?.name ?? ''
                             },
                             errors: []
                         }
@@ -156,13 +162,16 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         addTimestampToEvent: {
-                            __typename: 'LoggableEvent',
-                            id: inputVariables?.eventId,
-                            name: existingEvent?.name || '',
-                            timestamps: [...(existingEvent?.timestamps || []), inputVariables?.timestamp],
-                            warningThresholdInDays: existingEvent?.warningThresholdInDays || 0,
-                            createdAt: existingEvent?.createdAt || new Date().toISOString(),
-                            labels: existingEvent?.labels || []
+                            __typename: 'AddTimestampPayload',
+                            loggableEvent: {
+                                __typename: 'LoggableEvent',
+                                id: inputVariables?.eventId,
+                                name: existingEvent?.name || '',
+                                timestamps: [...(existingEvent?.timestamps || []), inputVariables?.timestamp],
+                                warningThresholdInDays: existingEvent?.warningThresholdInDays || 0,
+                                labels: existingEvent?.labels || []
+                            },
+                            errors: []
                         }
                     }
                 });
@@ -174,13 +183,19 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         removeTimestampFromEvent: {
-                            __typename: 'LoggableEvent',
-                            id: inputVariables?.eventId,
-                            name: existingEvent?.name || '',
-                            timestamps: existingEvent?.timestamps?.filter((t) => t !== inputVariables?.timestamp) || [],
-                            warningThresholdInDays: existingEvent?.warningThresholdInDays || 0,
-                            createdAt: existingEvent?.createdAt || new Date().toISOString(),
-                            labels: existingEvent?.labels || []
+                            __typename: 'RemoveTimestampPayload',
+                            loggableEvent: {
+                                __typename: 'LoggableEvent',
+                                id: inputVariables?.eventId,
+                                name: existingEvent?.name || '',
+                                timestamps:
+                                    existingEvent?.timestamps?.filter(
+                                        (timestamp) => timestamp !== inputVariables?.timestamp
+                                    ) || [],
+                                warningThresholdInDays: existingEvent?.warningThresholdInDays || 0,
+                                labels: existingEvent?.labels || []
+                            },
+                            errors: []
                         }
                     }
                 });
@@ -190,8 +205,12 @@ const offlineMockLink = new ApolloLink((operation) => {
                 observer.next({
                     data: {
                         deleteLoggableEvent: {
-                            __typename: 'LoggableEvent',
-                            id: inputVariables?.id
+                            __typename: 'DeleteLoggableEventPayload',
+                            loggableEvent: {
+                                __typename: 'LoggableEvent',
+                                id: inputVariables?.id
+                            },
+                            errors: []
                         }
                     }
                 });
@@ -275,12 +294,16 @@ export const createApolloClient = async (isOfflineMode = false) => {
         // Try to read the existing query data to see if offline user exists
         try {
             const existingData = cache.readQuery({
-                query: GET_LOGGABLE_EVENTS_FOR_USER,
-                variables: { userId: 'offline' }
+                query: GET_LOGGABLE_EVENTS_FOR_USER
             });
 
             // If we can read the data, the user already exists
-            if (existingData && typeof existingData === 'object' && 'user' in existingData && existingData.user) {
+            if (
+                existingData &&
+                typeof existingData === 'object' &&
+                'loggedInUser' in existingData &&
+                existingData.loggedInUser
+            ) {
                 return apolloClient;
             }
         } catch {
@@ -290,9 +313,8 @@ export const createApolloClient = async (isOfflineMode = false) => {
         // Initialize the offline user with proper structure
         cache.writeQuery({
             query: GET_LOGGABLE_EVENTS_FOR_USER,
-            variables: { userId: 'offline' },
             data: {
-                user: {
+                loggedInUser: {
                     __typename: 'User',
                     id: 'offline',
                     loggableEvents: [],

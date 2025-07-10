@@ -17,8 +17,6 @@ jest.mock('uuid', () => ({
     v4: () => 'mocked-uuid-value'
 }));
 
-const mockCreatedAt = '2023-01-01T00:00:00Z';
-
 const createCreateEventLabelMutation = ({
     id,
     serverGeneratedId,
@@ -54,8 +52,7 @@ const createCreateEventLabelMutation = ({
                                         eventLabel: {
                                             __typename: 'EventLabel',
                                             id: serverGeneratedId,
-                                            name,
-                                            createdAt: mockCreatedAt
+                                            name
                                         },
                                         errors: apiErrors
                                     }
@@ -99,8 +96,7 @@ const createUpdateEventLabelMutation = ({
                                         eventLabel: {
                                             __typename: 'EventLabel',
                                             id,
-                                            name,
-                                            createdAt: mockCreatedAt
+                                            name
                                         },
                                         errors: apiErrors
                                     }
@@ -221,8 +217,7 @@ describe('useEventLabels', () => {
                     eventLabel: {
                         __typename: 'EventLabel',
                         id: 'new-label-id',
-                        name: 'New Label',
-                        createdAt: mockCreatedAt
+                        name: 'New Label'
                     },
                     errors: []
                 })
@@ -289,8 +284,7 @@ describe('useEventLabels', () => {
                     eventLabel: {
                         __typename: 'EventLabel',
                         id: 'existing-label-id',
-                        name: 'Updated Label',
-                        createdAt: mockCreatedAt
+                        name: 'Updated Label'
                     },
                     errors: []
                 })
@@ -490,8 +484,7 @@ describe('useEventLabels', () => {
                     eventLabel: {
                         __typename: 'EventLabel',
                         id: 'new-label-id',
-                        name: 'New Label',
-                        createdAt: mockCreatedAt
+                        name: 'New Label'
                     },
                     errors: []
                 })
@@ -546,7 +539,6 @@ describe('useEventLabels', () => {
                             eventLabels {
                                 id
                                 name
-                                createdAt
                             }
                         }
                     }
@@ -560,8 +552,7 @@ describe('useEventLabels', () => {
                             {
                                 __typename: 'EventLabel',
                                 id: 'existing-label',
-                                name: 'Existing Label',
-                                createdAt: '2023-01-01T00:00:00Z'
+                                name: 'Existing Label'
                             }
                         ]
                     }
@@ -595,8 +586,7 @@ describe('useEventLabels', () => {
                     eventLabel: {
                         __typename: 'EventLabel',
                         id: 'new-label-id',
-                        name: 'New Label',
-                        createdAt: mockCreatedAt
+                        name: 'New Label'
                     },
                     errors: []
                 })
@@ -611,7 +601,6 @@ describe('useEventLabels', () => {
                             eventLabels {
                                 id
                                 name
-                                createdAt
                             }
                         }
                     }
@@ -642,7 +631,6 @@ describe('useEventLabels', () => {
                             eventLabels {
                                 id
                                 name
-                                createdAt
                             }
                         }
                     }
@@ -656,14 +644,12 @@ describe('useEventLabels', () => {
                             {
                                 __typename: 'EventLabel',
                                 id: 'label-to-delete',
-                                name: 'Label to Delete',
-                                createdAt: '2023-01-01T00:00:00Z'
+                                name: 'Label to Delete'
                             },
                             {
                                 __typename: 'EventLabel',
                                 id: 'label-to-keep',
-                                name: 'Label to Keep',
-                                createdAt: '2023-01-01T00:00:00Z'
+                                name: 'Label to Keep'
                             }
                         ]
                     }
@@ -709,7 +695,6 @@ describe('useEventLabels', () => {
                             eventLabels {
                                 id
                                 name
-                                createdAt
                             }
                         }
                     }

@@ -47,7 +47,6 @@ export const EVENT_LABEL_FRAGMENT = gql`
     fragment EventLabelFragment on EventLabel {
         id
         name
-        createdAt
     }
 `;
 
@@ -133,8 +132,7 @@ export const useEventLabels = () => {
             createEventLabel: {
                 __typename: 'EventLabel',
                 id: `temp-${uuidv4()}`,
-                name: variables.input.name,
-                createdAt: new Date().toISOString()
+                name: variables.input.name
             }
         }),
         update: (cache, { data }) => {
@@ -182,8 +180,7 @@ export const useEventLabels = () => {
             updateEventLabel: {
                 __typename: 'EventLabel',
                 id: variables.input.id,
-                name: variables.input.name,
-                createdAt: new Date().toISOString() // This will be overwritten by cache merge
+                name: variables.input.name
             }
         })
     });
@@ -216,6 +213,38 @@ export const useEventLabels = () => {
                         return existingLabelRefs.filter(
                             (labelRef: Reference) => readField('id', labelRef) !== data.deleteEventLabel.eventLabel.id
                         );
+                    },
+                    loggableEvents(existingLoggableEventsRefs, { readField }) {
+                        // Safety checks. Not practically reachable so ignore them in coverage
+
+                        // If no existing loggable events, return empty array
+                        // istanbul ignore next
+                        if (!existingLoggableEventsRefs) return [];
+
+                        // Remove label from all loggable events that had it
+                        existingLoggableEventsRefs.forEach((loggableEventRef: Reference) => {
+                            const labels = (readField('labels', loggableEventRef) as Reference[]) || [];
+                            const updatedLabels = labels.filter(
+                                (labelRef: Reference) =>
+                                    readField('id', labelRef) !== data.deleteEventLabel.eventLabel.id
+                            );
+
+                            // Only update if the event actually had this label
+                            if (labels.length !== updatedLabels.length) {
+                                cache.writeFragment({
+                                    id: cache.identify(loggableEventRef),
+                                    fragment: gql`
+                                        fragment UpdatedLoggableEvent on LoggableEvent {
+                                            labels
+                                        }
+                                    `,
+                                    data: { labels: updatedLabels }
+                                });
+                            }
+                        });
+
+                        // Return the original array since we've updated the individual objects
+                        return existingLoggableEventsRefs;
                     }
                 }
             });

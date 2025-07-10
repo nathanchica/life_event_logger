@@ -104,7 +104,6 @@ describe('LoggableEventsGQL', () => {
                     id: 'event-1',
                     name: 'Test Event 1',
                     timestamps: [new Date('2023-01-01T00:00:00Z')],
-                    createdAt: new Date('2023-01-01T00:00:00Z'),
                     warningThresholdInDays: 7,
                     labelIds: ['label-1', 'label-2']
                 }),
@@ -112,7 +111,6 @@ describe('LoggableEventsGQL', () => {
                     id: 'event-2',
                     name: 'Test Event 2',
                     timestamps: [new Date('2023-01-01T00:00:00Z')],
-                    createdAt: new Date('2023-01-01T00:00:00Z'),
                     warningThresholdInDays: 7,
                     labelIds: []
                 })
@@ -120,13 +118,11 @@ describe('LoggableEventsGQL', () => {
             expect(mockLoadEventLabels).toHaveBeenCalledWith([
                 expect.objectContaining({
                     id: 'label-1',
-                    name: 'Work',
-                    createdAt: new Date('2023-01-01T00:00:00Z')
+                    name: 'Work'
                 }),
                 expect.objectContaining({
                     id: 'label-2',
-                    name: 'Personal',
-                    createdAt: new Date('2023-01-01T00:00:00Z')
+                    name: 'Personal'
                 })
             ]);
         });

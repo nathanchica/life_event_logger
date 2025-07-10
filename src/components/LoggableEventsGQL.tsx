@@ -8,12 +8,12 @@ import LoggableEventsView from './LoggableEventsView';
 import { useAuth } from '../providers/AuthProvider';
 
 export const GET_LOGGABLE_EVENTS_FOR_USER = gql`
-    query GetLoggableEventsForUser($userId: String!) {
-        user(userId: $userId) {
+    query GetLoggableEventsForUser {
+        loggedInUser {
             id
             loggableEvents {
                 id
-                ...LoggableEventFragment
+                ...LoggableEventCardFragment
             }
             eventLabels {
                 id
@@ -36,7 +36,6 @@ const LoggableEventsGQL = () => {
     invariant(user, 'User is not authenticated');
 
     const { loading, error } = useQuery(GET_LOGGABLE_EVENTS_FOR_USER, {
-        variables: { userId: user.id },
         // In offline mode, only read from cache, don't try network
         fetchPolicy: isOfflineMode ? 'cache-only' : 'cache-and-network'
     });
