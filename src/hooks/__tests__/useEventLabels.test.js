@@ -720,4 +720,390 @@ describe('useEventLabels', () => {
             );
         });
     });
+
+    describe('cascade deletion from loggable events', () => {
+        it('removes deleted label from events that reference it', async () => {
+            const cache = new InMemoryCache();
+
+            // Pre-populate cache with user data including events with labels
+            cache.writeQuery({
+                query: gql`
+                    query GetUser($id: String!) {
+                        user(id: $id) {
+                            id
+                            eventLabels {
+                                id
+                                name
+                            }
+                            loggableEvents {
+                                id
+                                name
+                                labels {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { id: mockUser.id },
+                data: {
+                    user: {
+                        __typename: 'User',
+                        id: mockUser.id,
+                        eventLabels: [
+                            {
+                                __typename: 'EventLabel',
+                                id: 'label-to-delete',
+                                name: 'Label to Delete'
+                            },
+                            {
+                                __typename: 'EventLabel',
+                                id: 'label-to-keep',
+                                name: 'Label to Keep'
+                            }
+                        ],
+                        loggableEvents: [
+                            {
+                                __typename: 'LoggableEvent',
+                                id: 'event-1',
+                                name: 'Event with Multiple Labels',
+                                labels: [
+                                    {
+                                        __typename: 'EventLabel',
+                                        id: 'label-to-delete',
+                                        name: 'Label to Delete'
+                                    },
+                                    {
+                                        __typename: 'EventLabel',
+                                        id: 'label-to-keep',
+                                        name: 'Label to Keep'
+                                    }
+                                ]
+                            },
+                            {
+                                __typename: 'LoggableEvent',
+                                id: 'event-2',
+                                name: 'Event with Single Label',
+                                labels: [
+                                    {
+                                        __typename: 'EventLabel',
+                                        id: 'label-to-delete',
+                                        name: 'Label to Delete'
+                                    }
+                                ]
+                            },
+                            {
+                                __typename: 'LoggableEvent',
+                                id: 'event-3',
+                                name: 'Event with No Target Label',
+                                labels: [
+                                    {
+                                        __typename: 'EventLabel',
+                                        id: 'label-to-keep',
+                                        name: 'Label to Keep'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            });
+
+            const mocks = [
+                createDeleteEventLabelMutation({
+                    id: 'label-to-delete'
+                })
+            ];
+
+            const { result } = renderHook(() => useEventLabels(), {
+                wrapper: ({ children }) => (
+                    <MockedProvider mocks={mocks} cache={cache}>
+                        <AuthContext.Provider value={mockAuthContextValue}>{children}</AuthContext.Provider>
+                    </MockedProvider>
+                )
+            });
+
+            await act(async () => {
+                await result.current.deleteEventLabel({ id: 'label-to-delete' });
+            });
+
+            // Check that cache was updated by reading from it
+            const cachedData = cache.readQuery({
+                query: gql`
+                    query GetUser($id: String!) {
+                        user(id: $id) {
+                            id
+                            loggableEvents {
+                                id
+                                name
+                                labels {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { id: mockUser.id }
+            });
+
+            // Event 1 should have the deleted label removed, keeping the other label
+            expect(cachedData?.user?.loggableEvents[0]).toEqual(
+                expect.objectContaining({
+                    id: 'event-1',
+                    labels: [
+                        expect.objectContaining({
+                            id: 'label-to-keep',
+                            name: 'Label to Keep'
+                        })
+                    ]
+                })
+            );
+
+            // Event 2 should have empty labels array after deletion
+            expect(cachedData?.user?.loggableEvents[1]).toEqual(
+                expect.objectContaining({
+                    id: 'event-2',
+                    labels: []
+                })
+            );
+
+            // Event 3 should remain unchanged (didn't have the deleted label)
+            expect(cachedData?.user?.loggableEvents[2]).toEqual(
+                expect.objectContaining({
+                    id: 'event-3',
+                    labels: [
+                        expect.objectContaining({
+                            id: 'label-to-keep',
+                            name: 'Label to Keep'
+                        })
+                    ]
+                })
+            );
+        });
+
+        it('handles events with empty or null labels gracefully', async () => {
+            const cache = new InMemoryCache();
+
+            // Pre-populate cache with events that have null/empty labels
+            cache.writeQuery({
+                query: gql`
+                    query GetUser($id: String!) {
+                        user(id: $id) {
+                            id
+                            eventLabels {
+                                id
+                                name
+                            }
+                            loggableEvents {
+                                id
+                                name
+                                labels {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { id: mockUser.id },
+                data: {
+                    user: {
+                        __typename: 'User',
+                        id: mockUser.id,
+                        eventLabels: [
+                            {
+                                __typename: 'EventLabel',
+                                id: 'label-to-delete',
+                                name: 'Label to Delete'
+                            }
+                        ],
+                        loggableEvents: [
+                            {
+                                __typename: 'LoggableEvent',
+                                id: 'event-1',
+                                name: 'Event with Empty Labels',
+                                labels: []
+                            },
+                            {
+                                __typename: 'LoggableEvent',
+                                id: 'event-2',
+                                name: 'Event with Null Labels',
+                                labels: null
+                            }
+                        ]
+                    }
+                }
+            });
+
+            const mocks = [
+                createDeleteEventLabelMutation({
+                    id: 'label-to-delete'
+                })
+            ];
+
+            const { result } = renderHook(() => useEventLabels(), {
+                wrapper: ({ children }) => (
+                    <MockedProvider mocks={mocks} cache={cache}>
+                        <AuthContext.Provider value={mockAuthContextValue}>{children}</AuthContext.Provider>
+                    </MockedProvider>
+                )
+            });
+
+            await act(async () => {
+                await result.current.deleteEventLabel({ id: 'label-to-delete' });
+            });
+
+            // Check that cache was updated by reading from it
+            const cachedData = cache.readQuery({
+                query: gql`
+                    query GetUser($id: String!) {
+                        user(id: $id) {
+                            id
+                            loggableEvents {
+                                id
+                                name
+                                labels {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { id: mockUser.id }
+            });
+
+            // Events with empty/null labels should remain unchanged
+            expect(cachedData?.user?.loggableEvents[0]).toEqual(
+                expect.objectContaining({
+                    id: 'event-1',
+                    labels: []
+                })
+            );
+
+            expect(cachedData?.user?.loggableEvents[1]).toEqual(
+                expect.objectContaining({
+                    id: 'event-2',
+                    labels: null
+                })
+            );
+        });
+
+        it('only updates events that actually had the deleted label', async () => {
+            const cache = new InMemoryCache();
+
+            // Pre-populate cache with mixed scenarios
+            cache.writeQuery({
+                query: gql`
+                    query GetUser($id: String!) {
+                        user(id: $id) {
+                            id
+                            eventLabels {
+                                id
+                                name
+                            }
+                            loggableEvents {
+                                id
+                                name
+                                labels {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { id: mockUser.id },
+                data: {
+                    user: {
+                        __typename: 'User',
+                        id: mockUser.id,
+                        eventLabels: [
+                            {
+                                __typename: 'EventLabel',
+                                id: 'label-to-delete',
+                                name: 'Label to Delete'
+                            }
+                        ],
+                        loggableEvents: [
+                            {
+                                __typename: 'LoggableEvent',
+                                id: 'event-with-label',
+                                name: 'Event with Target Label',
+                                labels: [
+                                    {
+                                        __typename: 'EventLabel',
+                                        id: 'label-to-delete',
+                                        name: 'Label to Delete'
+                                    }
+                                ]
+                            },
+                            {
+                                __typename: 'LoggableEvent',
+                                id: 'event-without-label',
+                                name: 'Event without Target Label',
+                                labels: []
+                            }
+                        ]
+                    }
+                }
+            });
+
+            const mocks = [
+                createDeleteEventLabelMutation({
+                    id: 'label-to-delete'
+                })
+            ];
+
+            const { result } = renderHook(() => useEventLabels(), {
+                wrapper: ({ children }) => (
+                    <MockedProvider mocks={mocks} cache={cache}>
+                        <AuthContext.Provider value={mockAuthContextValue}>{children}</AuthContext.Provider>
+                    </MockedProvider>
+                )
+            });
+
+            await act(async () => {
+                await result.current.deleteEventLabel({ id: 'label-to-delete' });
+            });
+
+            // Check that cache was updated correctly
+            const cachedData = cache.readQuery({
+                query: gql`
+                    query GetUser($id: String!) {
+                        user(id: $id) {
+                            id
+                            loggableEvents {
+                                id
+                                name
+                                labels {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { id: mockUser.id }
+            });
+
+            // Event with label should have empty labels after deletion
+            expect(cachedData?.user?.loggableEvents[0]).toEqual(
+                expect.objectContaining({
+                    id: 'event-with-label',
+                    labels: []
+                })
+            );
+
+            // Event without label should remain unchanged
+            expect(cachedData?.user?.loggableEvents[1]).toEqual(
+                expect.objectContaining({
+                    id: 'event-without-label',
+                    labels: []
+                })
+            );
+        });
+    });
 });
