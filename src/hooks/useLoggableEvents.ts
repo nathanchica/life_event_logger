@@ -1,6 +1,7 @@
 import { gql, useMutation, Reference, useApolloClient } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
+import { readEventLabelFromCache } from '../apollo/client';
 import { useAuth } from '../providers/AuthProvider';
 import { LoggableEvent, LoggableEventFragment, GenericApiError } from '../utils/types';
 
@@ -205,20 +206,27 @@ export const useLoggableEvents = () => {
     const client = useApolloClient();
 
     const [createLoggableEventMutation, { loading: createIsLoading }] = useMutation(CREATE_LOGGABLE_EVENT_MUTATION, {
-        optimisticResponse: (variables) => ({
-            createLoggableEvent: {
-                __typename: 'CreateLoggableEventPayload',
-                loggableEvent: {
-                    __typename: 'LoggableEvent',
-                    id: `temp-${uuidv4()}`,
-                    name: variables.input.name,
-                    timestamps: [],
-                    warningThresholdInDays: variables.input.warningThresholdInDays || 0,
-                    labels: []
-                },
-                errors: []
-            }
-        }),
+        optimisticResponse: (variables) => {
+            const labelIds = variables.input.labelIds;
+
+            // If labelIds provided, read them from cache; otherwise use empty array
+            const labels = labelIds ? labelIds.map((id: string) => readEventLabelFromCache(id)).filter(Boolean) : [];
+
+            return {
+                createLoggableEvent: {
+                    __typename: 'CreateLoggableEventPayload',
+                    loggableEvent: {
+                        __typename: 'LoggableEvent',
+                        id: `temp-${uuidv4()}`,
+                        name: variables.input.name,
+                        timestamps: [],
+                        warningThresholdInDays: variables.input.warningThresholdInDays || 0,
+                        labels
+                    },
+                    errors: []
+                }
+            };
+        },
         update: (cache, { data }) => {
             if (!data?.createLoggableEvent || !data.createLoggableEvent?.loggableEvent || !user?.id) return;
 
@@ -272,6 +280,13 @@ export const useLoggableEvents = () => {
                 fragment: USE_LOGGABLE_EVENTS_FRAGMENT
             }) as LoggableEventFragment;
 
+            const labelIds = variables.input.labelIds;
+
+            // If labelIds provided, read them from cache; otherwise preserve existing
+            const labels = labelIds
+                ? labelIds.map((id: string) => readEventLabelFromCache(id)).filter(Boolean)
+                : existingEvent.labels;
+
             return {
                 updateLoggableEvent: {
                     __typename: 'UpdateLoggableEventPayload',
@@ -281,7 +296,7 @@ export const useLoggableEvents = () => {
                         name: variables.input.name,
                         timestamps: existingEvent.timestamps,
                         warningThresholdInDays: variables.input.warningThresholdInDays,
-                        labels: existingEvent.labels
+                        labels
                     },
                     errors: []
                 }
