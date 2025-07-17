@@ -125,7 +125,7 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
             filterOptions={(options, params) => {
                 return getFilteredOptions(params.inputValue);
             }}
-            options={[]}
+            options={labelOptions.map(({ name }) => name)}
             value={selectedLabels.map(({ name }) => name)}
             onChange={(_, values, reason) => {
                 handleCreateNewLabelSelect(values);
