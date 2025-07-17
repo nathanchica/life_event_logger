@@ -79,11 +79,10 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
      * @param values - Array of selected values from the autocomplete
      */
     const handleCreateNewLabelSelect = (values: readonly string[]) => {
-        const createNewValues = values.filter((val: string) => val.startsWith(CREATE_NEW_LABEL_PREFIX));
-        createNewValues.forEach((val: string) => {
-            const labelName = val.replace(CREATE_NEW_LABEL_PREFIX, '');
-            createNewLabel(labelName);
-        });
+        const newLabelsToCreate = values
+            .filter((val: string) => val.startsWith(CREATE_NEW_LABEL_PREFIX))
+            .map((val: string) => val.replace(CREATE_NEW_LABEL_PREFIX, ''));
+        newLabelsToCreate.forEach((labelName: string) => createNewLabel(labelName));
     };
 
     /**
