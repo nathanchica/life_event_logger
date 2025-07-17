@@ -305,10 +305,12 @@ export const useLoggableEvents = () => {
 
             if (!eventId) return IGNORE;
 
-            const existingEvent = client.cache.readFragment({
+            const existingEvent: LoggableEventFragment | null = client.cache.readFragment({
                 id: eventId,
                 fragment: USE_LOGGABLE_EVENTS_FRAGMENT
-            }) as LoggableEventFragment;
+            });
+
+            if (!existingEvent) return IGNORE;
 
             const labels = resolveLabelsFromCache(variables.input.labelIds, existingEvent.labels);
 
@@ -377,10 +379,12 @@ export const useLoggableEvents = () => {
 
             if (!eventId) return IGNORE;
 
-            const existingEvent = client.cache.readFragment({
+            const existingEvent: LoggableEventFragment | null = client.cache.readFragment({
                 id: eventId,
                 fragment: USE_LOGGABLE_EVENTS_FRAGMENT
-            }) as LoggableEventFragment;
+            });
+
+            if (!existingEvent) return IGNORE;
 
             const updatedTimestamps = Array.from(new Set([...existingEvent.timestamps, variables.input.timestamp]));
 
@@ -411,10 +415,12 @@ export const useLoggableEvents = () => {
 
                 if (!eventId) return IGNORE;
 
-                const existingEvent = client.cache.readFragment({
+                const existingEvent: LoggableEventFragment | null = client.cache.readFragment({
                     id: eventId,
                     fragment: USE_LOGGABLE_EVENTS_FRAGMENT
-                }) as LoggableEventFragment;
+                });
+
+                if (!existingEvent) return IGNORE;
 
                 const updatedTimestamps = existingEvent.timestamps.filter(
                     (timestamp: string) => timestamp !== variables.input.timestamp
