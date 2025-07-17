@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { readEventLabelFromCache } from '../apollo/client';
 import { useAuth } from '../providers/AuthProvider';
-import { LoggableEvent, LoggableEventFragment, GenericApiError } from '../utils/types';
+import { LoggableEvent, LoggableEventFragment, GenericApiError, EventLabelFragment } from '../utils/types';
 
 /**
  * Mutation input types
@@ -198,6 +198,21 @@ export const REMOVE_TIMESTAMP_FROM_EVENT_MUTATION = gql`
 `;
 
 /**
+ * Helper function to resolve label IDs to label objects from cache
+ * @param labelIds - Array of label IDs to resolve, or undefined
+ * @param fallbackLabels - Default labels to use if labelIds is not provided
+ * @returns Array of EventLabelFragment objects
+ */
+const resolveLabelsFromCache = (
+    labelIds: string[] | undefined,
+    fallbackLabels: EventLabelFragment[] = []
+): EventLabelFragment[] => {
+    return labelIds
+        ? (labelIds.map((id: string) => readEventLabelFromCache(id)).filter(Boolean) as EventLabelFragment[])
+        : fallbackLabels;
+};
+
+/**
  * Hook for managing loggable events with Apollo mutations.
  * Provides create, update, delete, and timestamp operations with optimistic updates.
  */
@@ -207,10 +222,7 @@ export const useLoggableEvents = () => {
 
     const [createLoggableEventMutation, { loading: createIsLoading }] = useMutation(CREATE_LOGGABLE_EVENT_MUTATION, {
         optimisticResponse: (variables) => {
-            const labelIds = variables.input.labelIds;
-
-            // If labelIds provided, read them from cache; otherwise use empty array
-            const labels = labelIds ? labelIds.map((id: string) => readEventLabelFromCache(id)).filter(Boolean) : [];
+            const labels = resolveLabelsFromCache(variables.input.labelIds);
 
             return {
                 createLoggableEvent: {
@@ -280,12 +292,7 @@ export const useLoggableEvents = () => {
                 fragment: USE_LOGGABLE_EVENTS_FRAGMENT
             }) as LoggableEventFragment;
 
-            const labelIds = variables.input.labelIds;
-
-            // If labelIds provided, read them from cache; otherwise preserve existing
-            const labels = labelIds
-                ? labelIds.map((id: string) => readEventLabelFromCache(id)).filter(Boolean)
-                : existingEvent.labels;
+            const labels = resolveLabelsFromCache(variables.input.labelIds, existingEvent.labels);
 
             return {
                 updateLoggableEvent: {
