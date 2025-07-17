@@ -35,6 +35,12 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
     const labelOptions = existingLabels.filter((label) => !selectedLabels.some(({ id }) => id === label.id));
     const existingLabelNames = existingLabels.map((label) => label.name);
 
+    /**
+     * Filters available label options based on user input and adds a "Create new label" option
+     * when the input doesn't match any existing label and is valid.
+     * @param inputValue - The current input value from the autocomplete field
+     * @returns Array of filtered option strings, potentially including a create new option
+     */
     const getFilteredOptions = (inputValue: string) => {
         let filteredOptions = labelOptions
             .filter((label) => label.name.toLowerCase().includes(inputValue.toLowerCase()))
@@ -51,7 +57,12 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
         return filteredOptions;
     };
 
-    const handleCreateNewLabel = (labelName: string) => {
+    /**
+     * Creates a new event label and automatically adds it to the selected labels.
+     * Only creates the label if it passes validation.
+     * @param labelName - The name of the label to create
+     */
+    const createNewLabel = (labelName: string) => {
         const validationError = validateEventLabelName(labelName, existingLabelNames);
         if (validationError === null) {
             const onCompleted = (payload: { createEventLabel: CreateEventLabelPayload }) => {
@@ -60,6 +71,51 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
             };
             createEventLabel({ name: labelName }, onCompleted);
         }
+    };
+
+    /**
+     * Handles the selection of "Create new label" options by extracting the label name
+     * and creating the new labels.
+     * @param values - Array of selected values from the autocomplete
+     */
+    const handleCreateNewLabelSelect = (values: readonly string[]) => {
+        const createNewValues = values.filter((val: string) => val.startsWith(CREATE_NEW_LABEL_PREFIX));
+        createNewValues.forEach((val: string) => {
+            const labelName = val.replace(CREATE_NEW_LABEL_PREFIX, '');
+            createNewLabel(labelName);
+        });
+    };
+
+    /**
+     * Handles creation of new labels when using freeSolo input (typing and pressing Enter).
+     * @param values - Array of selected values from the autocomplete
+     * @param reason - The reason for the change (e.g., 'createOption')
+     */
+    const handleFreeSoloCreation = (values: readonly string[], reason: string) => {
+        const newLabelsToCreate = values.filter(
+            (val: string) =>
+                reason === 'createOption' &&
+                !val.startsWith(CREATE_NEW_LABEL_PREFIX) &&
+                !existingLabelNames.includes(val) &&
+                !selectedLabels.some((label) => label.name === val)
+        );
+
+        newLabelsToCreate.forEach((val: string) => {
+            createNewLabel(val);
+        });
+    };
+
+    /**
+     * Updates the selected labels state with only existing labels (filters out create options).
+     * @param values - Array of selected values from the autocomplete
+     */
+    const updateSelectedLabels = (values: readonly string[]) => {
+        const existingSelectedLabels = values
+            .filter((val: string) => !val.startsWith(CREATE_NEW_LABEL_PREFIX))
+            .map((val: string) => existingLabels.find((label) => label.name === val))
+            .filter((label): label is EventLabel => label !== undefined);
+
+        setSelectedLabels(existingSelectedLabels);
     };
 
     return (
@@ -72,34 +128,9 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
             options={[]}
             value={selectedLabels.map(({ name }) => name)}
             onChange={(_, values, reason) => {
-                // Handle "Create new label" selection
-                const createNewValues = values.filter((val: string) => val.startsWith(CREATE_NEW_LABEL_PREFIX));
-                createNewValues.forEach((val: string) => {
-                    const labelName = val.replace(CREATE_NEW_LABEL_PREFIX, '');
-                    handleCreateNewLabel(labelName);
-                });
-
-                // Handle label creation separately from selection (for freeSolo input)
-                const newLabelsToCreate = values.filter(
-                    (val: string) =>
-                        reason === 'createOption' &&
-                        !val.startsWith(CREATE_NEW_LABEL_PREFIX) &&
-                        !existingLabelNames.includes(val) &&
-                        !selectedLabels.some((label) => label.name === val)
-                );
-
-                // Create new labels if needed
-                newLabelsToCreate.forEach((val: string) => {
-                    handleCreateNewLabel(val);
-                });
-
-                // Update selected labels with existing labels only (filter out create new options)
-                const existingSelectedLabels = values
-                    .filter((val: string) => !val.startsWith(CREATE_NEW_LABEL_PREFIX))
-                    .map((val: string) => existingLabels.find((label) => label.name === val))
-                    .filter((label): label is EventLabel => label !== undefined);
-
-                setSelectedLabels(existingSelectedLabels);
+                handleCreateNewLabelSelect(values);
+                handleFreeSoloCreation(values, reason);
+                updateSelectedLabels(values);
             }}
             renderValue={(value, getTagProps) =>
                 value
