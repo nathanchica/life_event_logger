@@ -260,12 +260,17 @@ export const useLoggableEvents = () => {
     });
 
     const [updateLoggableEventMutation, { loading: updateIsLoading }] = useMutation(UPDATE_LOGGABLE_EVENT_MUTATION, {
-        optimisticResponse: (variables) => {
+        // using any type here. it will be fixed in apollo 4.0 (not yet out at this time) https://github.com/apollographql/apollo-client/issues/12726
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        optimisticResponse: (variables, { IGNORE }: { IGNORE: any }) => {
             const eventId = client.cache.identify({ __typename: 'LoggableEvent', id: variables.input.id });
+
+            if (!eventId) return IGNORE;
+
             const existingEvent = client.cache.readFragment({
                 id: eventId,
                 fragment: USE_LOGGABLE_EVENTS_FRAGMENT
-            }) as LoggableEventFragment | null;
+            }) as LoggableEventFragment;
 
             return {
                 updateLoggableEvent: {
@@ -274,9 +279,9 @@ export const useLoggableEvents = () => {
                         __typename: 'LoggableEvent',
                         id: variables.input.id,
                         name: variables.input.name,
-                        timestamps: existingEvent?.timestamps || [],
-                        warningThresholdInDays: variables.input.warningThresholdInDays || 0,
-                        labels: existingEvent?.labels || []
+                        timestamps: existingEvent.timestamps,
+                        warningThresholdInDays: variables.input.warningThresholdInDays,
+                        labels: existingEvent.labels
                     },
                     errors: []
                 }
@@ -325,12 +330,19 @@ export const useLoggableEvents = () => {
     });
 
     const [addTimestampMutation, { loading: addTimestampIsLoading }] = useMutation(ADD_TIMESTAMP_TO_EVENT_MUTATION, {
-        optimisticResponse: (variables) => {
+        // using any type here. it will be fixed in apollo 4.0 (not yet out at this time) https://github.com/apollographql/apollo-client/issues/12726
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        optimisticResponse: (variables, { IGNORE }: { IGNORE: any }) => {
             const eventId = client.cache.identify({ __typename: 'LoggableEvent', id: variables.input.id });
+
+            if (!eventId) return IGNORE;
+
             const existingEvent = client.cache.readFragment({
                 id: eventId,
                 fragment: USE_LOGGABLE_EVENTS_FRAGMENT
-            }) as LoggableEventFragment | null;
+            }) as LoggableEventFragment;
+
+            const updatedTimestamps = Array.from(new Set([...existingEvent.timestamps, variables.input.timestamp]));
 
             return {
                 addTimestampToEvent: {
@@ -338,10 +350,10 @@ export const useLoggableEvents = () => {
                     loggableEvent: {
                         __typename: 'LoggableEvent',
                         id: variables.input.id,
-                        timestamps: [...(existingEvent?.timestamps || []), variables.input.timestamp],
-                        name: existingEvent?.name || '',
-                        warningThresholdInDays: existingEvent?.warningThresholdInDays || 0,
-                        labels: existingEvent?.labels || []
+                        timestamps: updatedTimestamps,
+                        name: existingEvent.name,
+                        warningThresholdInDays: existingEvent.warningThresholdInDays,
+                        labels: existingEvent.labels
                     },
                     errors: []
                 }
