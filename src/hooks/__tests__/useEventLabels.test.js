@@ -2,6 +2,7 @@ import { InMemoryCache, gql } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing';
 import { renderHook, act, waitFor } from '@testing-library/react';
 
+import { createMutationResponse } from '../../mocks/mutations';
 import { createMockAuthContextValue } from '../../mocks/providers';
 import { createMockUser } from '../../mocks/user';
 import { AuthContext } from '../../providers/AuthProvider';
@@ -19,134 +20,89 @@ jest.mock('uuid', () => ({
 
 const createCreateEventLabelMutationResponse = ({
     id,
-    serverGeneratedId,
     name,
+    serverGeneratedId,
     apiErrors = [],
     gqlError = null,
-    customPayload = undefined,
+    nullPayload = false,
     delay = 0
-}) => {
-    return {
-        request: {
-            query: CREATE_EVENT_LABEL_MUTATION,
-            variables: {
-                input: {
-                    name,
-                    id
-                }
+}) =>
+    createMutationResponse({
+        query: CREATE_EVENT_LABEL_MUTATION,
+        input: {
+            id,
+            name
+        },
+        mutationName: 'createEventLabel',
+        payload: {
+            __typename: 'CreateEventLabelMutationPayload',
+            tempID: serverGeneratedId,
+            eventLabel: {
+                __typename: 'EventLabel',
+                id: serverGeneratedId,
+                name
             }
         },
-        ...(delay > 0 ? { delay } : {}),
-        ...(gqlError
-            ? {
-                  error: gqlError
-              }
-            : {
-                  result: {
-                      data: {
-                          createEventLabel:
-                              customPayload !== undefined
-                                  ? customPayload
-                                  : {
-                                        __typename: 'CreateEventLabelMutationPayload',
-                                        tempID: serverGeneratedId,
-                                        eventLabel: {
-                                            __typename: 'EventLabel',
-                                            id: serverGeneratedId,
-                                            name
-                                        },
-                                        errors: apiErrors
-                                    }
-                      }
-                  }
-              })
-    };
-};
+        delay,
+        gqlError,
+        apiErrors,
+        nullPayload
+    });
 
 const createUpdateEventLabelMutationResponse = ({
     id,
     name,
     apiErrors = [],
     gqlError = null,
-    customPayload = undefined,
+    nullPayload = false,
     delay = 0
-}) => {
-    return {
-        request: {
-            query: UPDATE_EVENT_LABEL_MUTATION,
-            variables: {
-                input: {
-                    id,
-                    name
-                }
-            }
+}) =>
+    createMutationResponse({
+        query: UPDATE_EVENT_LABEL_MUTATION,
+        input: {
+            id,
+            name
         },
-        ...(delay > 0 ? { delay } : {}),
-        ...(gqlError
-            ? {
-                  error: gqlError
-              }
-            : {
-                  result: {
-                      data: {
-                          updateEventLabel:
-                              customPayload !== undefined
-                                  ? customPayload
-                                  : {
-                                        __typename: 'UpdateEventLabelMutationPayload',
-                                        eventLabel: {
-                                            __typename: 'EventLabel',
-                                            id,
-                                            name
-                                        },
-                                        errors: apiErrors
-                                    }
-                      }
-                  }
-              })
-    };
-};
+        mutationName: 'updateEventLabel',
+        payload: {
+            __typename: 'UpdateEventLabelMutationPayload',
+            eventLabel: {
+                __typename: 'EventLabel',
+                id,
+                name
+            },
+            errors: apiErrors
+        },
+        delay,
+        gqlError,
+        nullPayload
+    });
 
 const createDeleteEventLabelMutationResponse = ({
     id,
     apiErrors = [],
     gqlError = null,
-    customPayload = undefined,
+    nullPayload = false,
     delay = 0
-}) => {
-    return {
-        request: {
-            query: DELETE_EVENT_LABEL_MUTATION,
-            variables: {
-                input: {
-                    id
-                }
-            }
+}) =>
+    createMutationResponse({
+        query: DELETE_EVENT_LABEL_MUTATION,
+        input: {
+            id
         },
-        ...(delay > 0 ? { delay } : {}),
-        ...(gqlError
-            ? {
-                  error: gqlError
-              }
-            : {
-                  result: {
-                      data: {
-                          deleteEventLabel:
-                              customPayload !== undefined
-                                  ? customPayload
-                                  : {
-                                        __typename: 'DeleteEventLabelMutationPayload',
-                                        eventLabel: {
-                                            __typename: 'EventLabel',
-                                            id
-                                        },
-                                        errors: apiErrors
-                                    }
-                      }
-                  }
-              })
-    };
-};
+        mutationName: 'deleteEventLabel',
+        payload: {
+            __typename: 'DeleteEventLabelMutationPayload',
+            eventLabel: {
+                __typename: 'EventLabel',
+                id
+            },
+            errors: apiErrors
+        },
+        delay,
+        gqlError,
+        nullPayload
+    });
 
 const GET_USER_QUERY = gql`
     query GetUser($id: String!) {
@@ -237,7 +193,7 @@ describe('useEventLabels', () => {
                 {
                     id: 'temp-mocked-uuid-value',
                     name: 'New Label',
-                    customPayload: null
+                    nullPayload: true
                 },
                 [],
                 0
@@ -303,7 +259,7 @@ describe('useEventLabels', () => {
                 {
                     id: 'existing-label-id',
                     name: 'Updated Label',
-                    customPayload: null
+                    nullPayload: true
                 },
                 [
                     {
@@ -370,7 +326,7 @@ describe('useEventLabels', () => {
                 'returns null when mutation result is empty',
                 {
                     id: 'existing-label-id',
-                    customPayload: null
+                    nullPayload: true
                 },
                 [{ __typename: 'EventLabel', id: 'existing-label-id', name: 'Test Label' }],
                 0
