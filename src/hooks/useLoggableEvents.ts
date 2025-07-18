@@ -284,7 +284,7 @@ export const useLoggableEvents = () => {
                             return existingEventRefs;
                         }
 
-                        return [...existingEventRefs, newEventRef];
+                        return [newEventRef, ...existingEventRefs];
                     }
                 }
             });
