@@ -242,7 +242,11 @@ export const useEventLabels = () => {
 
                         // Remove label from all loggable events that had it
                         existingLoggableEventsRefs.forEach((loggableEventRef: Reference) => {
-                            const labels = readField('labels', loggableEventRef) as Reference[];
+                            const labels: readonly Reference[] | undefined = readField('labels', loggableEventRef);
+
+                            // istanbul ignore next
+                            if (!labels) return;
+
                             const updatedLabels = labels.filter(
                                 (labelRef: Reference) =>
                                     readField('id', labelRef) !== data.deleteEventLabel.eventLabel.id
