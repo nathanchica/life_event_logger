@@ -479,28 +479,30 @@ describe('useEventLabels', () => {
     });
 
     describe('cascade deletion from loggable events', () => {
+        const GET_USER_EVENTS_AND_LABELS_QUERY = gql`
+            query GetUser($id: String!) {
+                user(id: $id) {
+                    id
+                    eventLabels {
+                        id
+                        name
+                    }
+                    loggableEvents {
+                        id
+                        name
+                        labels {
+                            id
+                            name
+                        }
+                    }
+                }
+            }
+        `;
+
         it('removes deleted label from events that reference it', async () => {
             // Pre-populate cache with user data including events with labels
             apolloCache.writeQuery({
-                query: gql`
-                    query GetUser($id: String!) {
-                        user(id: $id) {
-                            id
-                            eventLabels {
-                                id
-                                name
-                            }
-                            loggableEvents {
-                                id
-                                name
-                                labels {
-                                    id
-                                    name
-                                }
-                            }
-                        }
-                    }
-                `,
+                query: GET_USER_EVENTS_AND_LABELS_QUERY,
                 variables: { id: mockUser.id },
                 data: {
                     user: {
@@ -579,21 +581,7 @@ describe('useEventLabels', () => {
 
             await waitFor(() => {
                 const cachedData = apolloCache.readQuery({
-                    query: gql`
-                        query GetUser($id: String!) {
-                            user(id: $id) {
-                                id
-                                loggableEvents {
-                                    id
-                                    name
-                                    labels {
-                                        id
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    `,
+                    query: GET_USER_EVENTS_AND_LABELS_QUERY,
                     variables: { id: mockUser.id }
                 });
 
@@ -638,25 +626,7 @@ describe('useEventLabels', () => {
         it('handles events with empty or null labels gracefully', async () => {
             // Pre-populate cache with events that have null/empty labels
             apolloCache.writeQuery({
-                query: gql`
-                    query GetUser($id: String!) {
-                        user(id: $id) {
-                            id
-                            eventLabels {
-                                id
-                                name
-                            }
-                            loggableEvents {
-                                id
-                                name
-                                labels {
-                                    id
-                                    name
-                                }
-                            }
-                        }
-                    }
-                `,
+                query: GET_USER_EVENTS_AND_LABELS_QUERY,
                 variables: { id: mockUser.id },
                 data: {
                     user: {
@@ -701,21 +671,7 @@ describe('useEventLabels', () => {
 
             await waitFor(() => {
                 const cachedData = apolloCache.readQuery({
-                    query: gql`
-                        query GetUser($id: String!) {
-                            user(id: $id) {
-                                id
-                                loggableEvents {
-                                    id
-                                    name
-                                    labels {
-                                        id
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    `,
+                    query: GET_USER_EVENTS_AND_LABELS_QUERY,
                     variables: { id: mockUser.id }
                 });
 
