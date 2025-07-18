@@ -498,6 +498,16 @@ describe('useEventLabels', () => {
                 }
             }
         `;
+        const mockLabelToKeep = {
+            __typename: 'EventLabel',
+            id: 'label-to-keep',
+            name: 'Label to Keep'
+        };
+        const mockLabelToDelete = {
+            __typename: 'EventLabel',
+            id: 'label-to-delete',
+            name: 'Label to Delete'
+        };
 
         it('removes deleted label from events that reference it', async () => {
             // Pre-populate cache with user data including events with labels
@@ -508,59 +518,25 @@ describe('useEventLabels', () => {
                     user: {
                         __typename: 'User',
                         id: mockUser.id,
-                        eventLabels: [
-                            {
-                                __typename: 'EventLabel',
-                                id: 'label-to-delete',
-                                name: 'Label to Delete'
-                            },
-                            {
-                                __typename: 'EventLabel',
-                                id: 'label-to-keep',
-                                name: 'Label to Keep'
-                            }
-                        ],
+                        eventLabels: [mockLabelToDelete, mockLabelToKeep],
                         loggableEvents: [
                             {
                                 __typename: 'LoggableEvent',
                                 id: 'event-1',
                                 name: 'Event with Multiple Labels',
-                                labels: [
-                                    {
-                                        __typename: 'EventLabel',
-                                        id: 'label-to-delete',
-                                        name: 'Label to Delete'
-                                    },
-                                    {
-                                        __typename: 'EventLabel',
-                                        id: 'label-to-keep',
-                                        name: 'Label to Keep'
-                                    }
-                                ]
+                                labels: [mockLabelToDelete, mockLabelToKeep]
                             },
                             {
                                 __typename: 'LoggableEvent',
                                 id: 'event-2',
                                 name: 'Event with Single Label',
-                                labels: [
-                                    {
-                                        __typename: 'EventLabel',
-                                        id: 'label-to-delete',
-                                        name: 'Label to Delete'
-                                    }
-                                ]
+                                labels: [mockLabelToDelete]
                             },
                             {
                                 __typename: 'LoggableEvent',
                                 id: 'event-3',
                                 name: 'Event with No Target Label',
-                                labels: [
-                                    {
-                                        __typename: 'EventLabel',
-                                        id: 'label-to-keep',
-                                        name: 'Label to Keep'
-                                    }
-                                ]
+                                labels: [mockLabelToKeep]
                             }
                         ]
                     }
@@ -569,14 +545,14 @@ describe('useEventLabels', () => {
 
             const mocks = [
                 createDeleteEventLabelMutationResponse({
-                    id: 'label-to-delete'
+                    id: mockLabelToDelete.id
                 })
             ];
 
             const { result } = renderHookWithProviders({ mocks });
 
             await act(async () => {
-                result.current.deleteEventLabel({ input: { id: 'label-to-delete' } });
+                result.current.deleteEventLabel({ input: { id: mockLabelToDelete.id } });
             });
 
             await waitFor(() => {
@@ -590,13 +566,7 @@ describe('useEventLabels', () => {
                     __typename: 'LoggableEvent',
                     id: 'event-1',
                     name: 'Event with Multiple Labels',
-                    labels: [
-                        {
-                            __typename: 'EventLabel',
-                            id: 'label-to-keep',
-                            name: 'Label to Keep'
-                        }
-                    ]
+                    labels: [mockLabelToKeep]
                 });
 
                 // Event 2 should have empty labels array after deletion
