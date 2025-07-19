@@ -17,7 +17,7 @@ import EditEventCard from '../EditEventCard';
 jest.mock('../../../hooks/useLoggableEvents');
 
 describe('EditEventCard', () => {
-    let apolloCache;
+    let apolloCache = new InMemoryCache();
     let mockUserFragment;
     let user;
     const mockOnDismiss = jest.fn();
