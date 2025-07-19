@@ -98,7 +98,7 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
                 // Value is not the "Create new label" option
                 !val.startsWith(CREATE_NEW_LABEL_PREFIX) &&
                 // Value is not already an existing label
-                !existingLabelNames.includes(val)
+                !existingLabelNames.some((existingLabel) => existingLabel.toLowerCase() === val.toLowerCase())
         );
 
         newLabelsToCreate.forEach((val: string) => {
