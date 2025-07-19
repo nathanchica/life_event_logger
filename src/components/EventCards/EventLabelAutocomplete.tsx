@@ -113,7 +113,7 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
     const updateSelectedLabels = (values: readonly string[]) => {
         const existingSelectedLabels = values
             .filter((val: string) => !val.startsWith(CREATE_NEW_LABEL_PREFIX))
-            .map((val: string) => existingLabels.find((label) => label.name === val))
+            .map((val: string) => existingLabels.find((label) => label.name.toLowerCase() === val.toLowerCase()))
             .filter((label): label is EventLabel => label !== undefined);
 
         setSelectedLabels(existingSelectedLabels);
