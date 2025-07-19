@@ -156,7 +156,7 @@ const EditEventCard = ({ onDismiss, eventIdToEdit }: Props) => {
         from: {
             __typename: 'LoggableEvent',
             // if creating a new event, use a placeholder id to avoid console warning. won't be used in mutation
-            id: isCreatingNewEvent ? 'new-event' : eventIdToEdit
+            id: isCreatingNewEvent ? 'placeholder-new-event' : eventIdToEdit
         }
     });
 
