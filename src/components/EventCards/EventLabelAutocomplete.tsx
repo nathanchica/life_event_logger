@@ -93,10 +93,12 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
     const handleFreeSoloCreation = (values: readonly string[], reason: string) => {
         const newLabelsToCreate = values.filter(
             (val: string) =>
+                // Enter key was pressed
                 reason === 'createOption' &&
+                // Value is not the "Create new label" option
                 !val.startsWith(CREATE_NEW_LABEL_PREFIX) &&
-                !existingLabelNames.includes(val) &&
-                !selectedLabels.some((label) => label.name === val)
+                // Value is not already an existing label
+                !existingLabelNames.includes(val)
         );
 
         newLabelsToCreate.forEach((val: string) => {
@@ -179,7 +181,7 @@ const EventLabelAutocomplete = ({ selectedLabels, setSelectedLabels, existingLab
                         {...params}
                         variant="standard"
                         label="Labels"
-                        color={isDarkMode ? 'primary' : 'primary'}
+                        color={isDarkMode ? 'primary' : 'secondary'}
                         placeholder="Type to search or create labels"
                         autoFocus
                         error={error}
